@@ -1,0 +1,39 @@
+"use client";
+
+import { useWorkflow } from "@/hooks/useWorkflow";
+import { useUndoRedoStore } from "@/stores/undoRedoStore";
+import CanvasViewportControls from "./CanvasViewportControls";
+
+export default function CanvasToolbar() {
+  const { undo, redo } = useWorkflow();
+
+  const undoCount = useUndoRedoStore(
+    (state) => state.undoStack.length,
+  );
+
+  const redoCount = useUndoRedoStore(
+    (state) => state.redoStack.length,
+  );
+
+  return (
+    <div className="mb-4 flex items-center gap-3 rounded-xl border border-white/10 bg-white/80 p-3 shadow-sm backdrop-blur dark:bg-neutral-900/80">
+      <button
+        onClick={undo}
+        disabled={undoCount === 0}
+        className="rounded-lg border px-4 py-2 text-sm transition hover:bg-slate-100 disabled:cursor-not-allowed disabled:opacity-50 dark:hover:bg-neutral-800"
+      >
+        ↶ Undo
+      </button>
+
+      <button
+        onClick={redo}
+        disabled={redoCount === 0}
+        className="rounded-lg border px-4 py-2 text-sm transition hover:bg-slate-100 disabled:cursor-not-allowed disabled:opacity-50 dark:hover:bg-neutral-800"
+      >
+        ↷ Redo
+      </button>
+
+      <CanvasViewportControls />
+    </div>
+  );
+}
