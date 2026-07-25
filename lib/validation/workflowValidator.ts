@@ -1,26 +1,22 @@
-import type {
-  WorkflowModel,
-  WorkflowNodeModel,
-} from "@/models/workflow";
+import type { WorkflowNodeModel } from "@/models/workflow";
 
-export interface WorkflowValidationError {
+export interface ValidationError {
   nodeId: string;
   message: string;
 }
 
-function validateNode(
-  node: WorkflowNodeModel,
-): WorkflowValidationError[] {
-  const errors: WorkflowValidationError[] = [];
+export function validateWorkflowNode(node: WorkflowNodeModel): ValidationError[] {
+  const errors: ValidationError[] = [];
 
-  if (!node.title.trim()) {
+  if (!node.title || !node.title.trim()) {
     errors.push({
       nodeId: node.id,
       message: "Node title is required.",
     });
   }
 
-  if (!node.description.trim()) {
+  const descriptionText = node.description?.trim() ?? "";
+  if (!descriptionText) {
     errors.push({
       nodeId: node.id,
       message: "Node description is required.",
@@ -28,10 +24,4 @@ function validateNode(
   }
 
   return errors;
-}
-
-export function validateWorkflow(
-  workflow: WorkflowModel,
-): WorkflowValidationError[] {
-  return workflow.nodes.flatMap(validateNode);
 }

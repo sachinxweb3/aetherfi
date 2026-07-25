@@ -1,6 +1,6 @@
 "use client";
 
-import { NodeProps } from "@xyflow/react";
+import { Node, NodeProps } from "@xyflow/react";
 import { ShieldCheck } from "lucide-react";
 
 import BaseNode from "../BaseNode";
@@ -8,7 +8,7 @@ import { FlowNodeData } from "../types/FlowNodeData";
 
 export default function DecisionNode({
   data,
-}: NodeProps<FlowNodeData>) {
+}: NodeProps<Node<FlowNodeData>>) {
   return (
     <BaseNode
       data={data}

@@ -12,6 +12,7 @@ import {
 } from "@xyflow/react";
 
 import CanvasToolbar from "./CanvasToolbar";
+import SimulationMetrics from "./SimulationMetrics";
 import InspectorPanel from "@/components/inspector/InspectorPanel";
 import { useInteractionState } from "@/hooks/useInteractionState";
 import { useWorkflow } from "@/hooks/useWorkflow";
@@ -38,17 +39,14 @@ export default function FlowCanvas() {
   const nodes = useMemo(() => {
     const isExecutionRunning = workflow.executionState === "running";
 
-    // Compute hovered node index for fallback hover simulation
     const hoveredIndex = canvasSourceNodes.findIndex(
       (node) => node.id === interaction.hoveredNodeId,
     );
 
     return canvasSourceNodes.map((node, index) => {
-      // Find matching state from workflowStore
       const storeNode = workflow.nodes.find((n) => n.id === node.id);
       let state = storeNode?.state ?? "idle";
 
-      // Fallback to hover logic only if execution engine is NOT running
       if (!isExecutionRunning && hoveredIndex >= 0) {
         if (index < hoveredIndex) {
           state = "success";
@@ -76,13 +74,16 @@ export default function FlowCanvas() {
       const sourceNode = nodes.find((n) => n.id === edge.source);
       const targetNode = nodes.find((n) => n.id === edge.target);
 
+      const sourceState = String(sourceNode?.data?.state ?? "");
+      const targetState = String(targetNode?.data?.state ?? "");
+
       const isActive =
-        sourceNode?.data?.state === "active" ||
-        targetNode?.data?.state === "active" ||
-        (sourceNode?.data?.state === "success" && targetNode?.data?.state === "active");
+        sourceState === "active" ||
+        targetState === "active" ||
+        (sourceState === "success" && targetState === "active");
 
       const isSuccess =
-        sourceNode?.data?.state === "success" && targetNode?.data?.state === "success";
+        sourceState === "success" && targetState === "success";
 
       return {
         ...edge,
@@ -92,7 +93,7 @@ export default function FlowCanvas() {
         },
       };
     });
-  }, [initialEdges, nodes]);
+  }, [nodes]);
 
   return (
     <div className="space-y-4">
@@ -139,6 +140,9 @@ export default function FlowCanvas() {
 
         <InspectorPanel />
       </div>
+
+      {/* Live Simulation Metrics Bar */}
+      <SimulationMetrics />
     </div>
   );
 }

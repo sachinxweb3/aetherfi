@@ -1,46 +1,41 @@
-export type WorkflowExecutionState =
-  | "idle"
-  | "running"
-  | "paused";
-
 export type WorkflowNodeState =
   | "idle"
   | "active"
   | "success"
+  | "warning"
   | "error";
 
 export interface WorkflowNodeSettings {
-  riskThreshold?: number;
-  approvalLimit?: number;
-  walletType?: string;
+  requireConfirmation?: boolean;
+  autoRetry?: boolean;
+  timeoutMs?: number;
+  [key: string]: unknown;
 }
 
 export interface WorkflowNodeModel {
   id: string;
   title: string;
-  description: string;
+  description?: string;
   state: WorkflowNodeState;
-
-  settings: WorkflowNodeSettings;
+  settings?: WorkflowNodeSettings;
 }
 
-export interface WorkflowNodeLayout {
+export interface WorkflowLayoutNode {
   id: string;
-
-  position: {
-    x: number;
-    y: number;
-  };
+  position?: { x: number; y: number };
+  [key: string]: unknown;
 }
 
-export interface WorkflowLayoutModel {
-  nodes: WorkflowNodeLayout[];
+export interface WorkflowLayout {
+  nodes: WorkflowLayoutNode[];
+  [key: string]: unknown;
 }
 
 export interface WorkflowModel {
-  executionState: WorkflowExecutionState;
-
+  id: string;
+  title: string;
+  executionState: "idle" | "running" | "paused" | "error";
   nodes: WorkflowNodeModel[];
-
-  layout: WorkflowLayoutModel;
+  layout?: WorkflowLayout;
+  [key: string]: unknown;
 }

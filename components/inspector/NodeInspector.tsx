@@ -4,8 +4,6 @@ import { useEffect, useState } from "react";
 
 import { useWorkflow } from "@/hooks/useWorkflow";
 import type { WorkflowNodeState } from "@/models/workflow";
-import HistoryPanel from "./HistoryPanel";
-import ValidationPanel from "./ValidationPanel";
 
 export default function NodeInspector() {
   const {
@@ -17,22 +15,25 @@ export default function NodeInspector() {
   } = useWorkflow();
 
   const [title, setTitle] = useState("");
+  const [description, setDescription] = useState("");
 
   useEffect(() => {
-    setTitle(selectedNode?.title ?? "");
+    if (selectedNode) {
+      setTitle(selectedNode.title);
+      setDescription(selectedNode.description ?? "");
+    }
   }, [selectedNode]);
 
   if (!selectedNode) {
     return null;
   }
 
-  function commitTitle() {
+  function handleTitleBlur() {
+    if (!selectedNode) return;
+
     const nextTitle = title.trim();
 
-    if (
-      nextTitle.length === 0 ||
-      nextTitle === selectedNode.title
-    ) {
+    if (nextTitle.length === 0 || nextTitle === selectedNode.title) {
       setTitle(selectedNode.title);
       return;
     }
@@ -40,53 +41,51 @@ export default function NodeInspector() {
     renameNode(selectedNode.id, nextTitle);
   }
 
+  function handleDescriptionBlur() {
+    if (!selectedNode) return;
+
+    const nextDesc = description.trim();
+
+    if (nextDesc === (selectedNode.description ?? "")) {
+      return;
+    }
+
+    updateNodeDescription(selectedNode.id, nextDesc);
+  }
+
   return (
     <div className="space-y-6">
-      <div>
-        <p className="text-xs uppercase tracking-widest text-muted-foreground">
-          Selected Node
-        </p>
-
+      <div className="space-y-2">
+        <label className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+          Node Title
+        </label>
         <input
-          className="mt-2 w-full rounded-xl border px-3 py-2"
+          type="text"
           value={title}
-          onChange={(e) =>
-            setTitle(e.target.value)
-          }
-          onBlur={commitTitle}
-          onKeyDown={(e) => {
-            if (e.key === "Enter") {
-              e.currentTarget.blur();
-            }
-          }}
+          onChange={(e) => setTitle(e.target.value)}
+          onBlur={handleTitleBlur}
+          className="w-full rounded-xl border border-border bg-background px-3 py-2 text-sm font-semibold outline-none transition focus:border-primary"
         />
       </div>
 
-      <div>
-        <p className="text-xs uppercase tracking-widest text-muted-foreground">
+      <div className="space-y-2">
+        <label className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
           Description
-        </p>
-
+        </label>
         <textarea
-          rows={4}
-          className="mt-2 w-full rounded-xl border px-3 py-2"
-          value={selectedNode.description}
-          onChange={(e) =>
-            updateNodeDescription(
-              selectedNode.id,
-              e.target.value,
-            )
-          }
+          value={description}
+          onChange={(e) => setDescription(e.target.value)}
+          onBlur={handleDescriptionBlur}
+          rows={3}
+          className="w-full resize-none rounded-xl border border-border bg-background px-3 py-2 text-sm outline-none transition focus:border-primary"
         />
       </div>
 
-      <div>
-        <p className="text-xs uppercase tracking-widest text-muted-foreground">
-          Status
-        </p>
-
+      <div className="space-y-2">
+        <label className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+          Execution Status
+        </label>
         <select
-          className="mt-2 w-full rounded-xl border px-3 py-2"
           value={selectedNode.state}
           onChange={(e) =>
             updateNodeState(
@@ -94,86 +93,49 @@ export default function NodeInspector() {
               e.target.value as WorkflowNodeState,
             )
           }
+          className="w-full rounded-xl border border-border bg-background px-3 py-2 text-sm font-medium outline-none transition focus:border-primary"
         >
           <option value="idle">Idle</option>
           <option value="active">Active</option>
           <option value="success">Success</option>
+          <option value="warning">Warning</option>
           <option value="error">Error</option>
         </select>
       </div>
 
-      <div className="space-y-4 rounded-xl border p-4">
-        <h3 className="font-medium">
-          Wallet Settings
-        </h3>
+      <div className="space-y-3 pt-2">
+        <div className="flex items-center justify-between">
+          <span className="text-xs font-medium text-muted-foreground">
+            Require Confirmation
+          </span>
+          <input
+            type="checkbox"
+            checked={Boolean(selectedNode.settings?.requireConfirmation)}
+            onChange={(e) =>
+              updateNodeSettings(selectedNode.id, {
+                requireConfirmation: e.target.checked,
+              })
+            }
+            className="h-4 w-4 rounded accent-primary"
+          />
+        </div>
 
-        <input
-          placeholder="Wallet Type"
-          className="w-full rounded-xl border px-3 py-2"
-          value={
-            selectedNode.settings.walletType ??
-            ""
-          }
-          onChange={(e) =>
-            updateNodeSettings(
-              selectedNode.id,
-              {
-                walletType:
-                  e.target.value,
-              },
-            )
-          }
-        />
-
-        <input
-          type="number"
-          placeholder="Approval Limit"
-          className="w-full rounded-xl border px-3 py-2"
-          value={
-            selectedNode.settings
-              .approvalLimit ?? ""
-          }
-          onChange={(e) =>
-            updateNodeSettings(
-              selectedNode.id,
-              {
-                approvalLimit:
-                  e.target.value === ""
-                    ? undefined
-                    : Number(
-                        e.target.value,
-                      ),
-              },
-            )
-          }
-        />
-
-        <input
-          type="number"
-          placeholder="Risk Threshold"
-          className="w-full rounded-xl border px-3 py-2"
-          value={
-            selectedNode.settings
-              .riskThreshold ?? ""
-          }
-          onChange={(e) =>
-            updateNodeSettings(
-              selectedNode.id,
-              {
-                riskThreshold:
-                  e.target.value === ""
-                    ? undefined
-                    : Number(
-                        e.target.value,
-                      ),
-              },
-            )
-          }
-        />
+        <div className="flex items-center justify-between">
+          <span className="text-xs font-medium text-muted-foreground">
+            Auto Retry on Failure
+          </span>
+          <input
+            type="checkbox"
+            checked={Boolean(selectedNode.settings?.autoRetry)}
+            onChange={(e) =>
+              updateNodeSettings(selectedNode.id, {
+                autoRetry: e.target.checked,
+              })
+            }
+            className="h-4 w-4 rounded accent-primary"
+          />
+        </div>
       </div>
-
-      <ValidationPanel />
-      <HistoryPanel />
     </div>
   );
 }

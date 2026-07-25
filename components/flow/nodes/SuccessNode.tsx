@@ -1,18 +1,14 @@
 "use client";
 
-import { NodeProps } from "@xyflow/react";
+import { Node, NodeProps } from "@xyflow/react";
 import { CheckCircle2 } from "lucide-react";
 
-import BaseNode, { NodeVariant } from "../BaseNode";
+import BaseNode from "../BaseNode";
 import { FlowNodeData } from "../types/FlowNodeData";
-
-interface ExtendedFlowNodeData extends FlowNodeData {
-  variant?: NodeVariant;
-}
 
 export default function SuccessNode({
   data,
-}: NodeProps<ExtendedFlowNodeData>) {
+}: NodeProps<Node<FlowNodeData>>) {
   return (
     <BaseNode
       data={data}

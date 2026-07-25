@@ -1,109 +1,42 @@
 import type { WorkflowNodeModel } from "@/models/workflow";
 
-export type ValidationStatus =
-  | "success"
-  | "warning"
-  | "error";
-
 export interface ValidationResult {
   field: string;
-  status: ValidationStatus;
+  status: "error" | "warning" | "success";
   message: string;
 }
 
-export function validateNode(
-  node: WorkflowNodeModel,
-): ValidationResult[] {
+export function validateNode(node: WorkflowNodeModel): ValidationResult[] {
   const results: ValidationResult[] = [];
 
-  // Name
-  if (node.title.trim().length === 0) {
+  // Title validation
+  if (!node.title || node.title.trim().length === 0) {
     results.push({
       field: "title",
       status: "error",
-      message: "Node name is required.",
+      message: "Node title cannot be empty.",
     });
   } else {
     results.push({
       field: "title",
       status: "success",
-      message: "Name looks good.",
+      message: "Title configured correctly.",
     });
   }
 
-  // Description
-  if (node.description.trim().length === 0) {
+  // Description validation (with safe optional chaining)
+  const descriptionText = node.description?.trim() ?? "";
+  if (descriptionText.length === 0) {
     results.push({
       field: "description",
       status: "warning",
-      message: "Description is recommended.",
+      message: "Adding a description helps document your workflow pipeline.",
     });
   } else {
     results.push({
       field: "description",
       status: "success",
-      message: "Description added.",
-    });
-  }
-
-  // Wallet
-  if (!node.settings.walletType?.trim()) {
-    results.push({
-      field: "walletType",
-      status: "warning",
-      message: "Wallet type not configured.",
-    });
-  } else {
-    results.push({
-      field: "walletType",
-      status: "success",
-      message: "Wallet configured.",
-    });
-  }
-
-  // Risk
-  const risk = node.settings.riskThreshold;
-
-  if (risk === undefined) {
-    results.push({
-      field: "riskThreshold",
-      status: "warning",
-      message: "Risk threshold not set.",
-    });
-  } else if (risk < 0 || risk > 100) {
-    results.push({
-      field: "riskThreshold",
-      status: "error",
-      message: "Risk threshold must be between 0 and 100.",
-    });
-  } else {
-    results.push({
-      field: "riskThreshold",
-      status: "success",
-      message: "Risk threshold valid.",
-    });
-  }
-
-  // Approval
-  const approval = node.settings.approvalLimit;
-
-  if (approval === undefined) {
-    results.push({
-      field: "approvalLimit",
-      status: "warning",
-      message: "Approval limit not configured.",
-    });
-  } else if (approval < 0) {
-    results.push({
-      field: "approvalLimit",
-      status: "error",
-      message: "Approval limit cannot be negative.",
-    });
-  } else {
-    results.push({
-      field: "approvalLimit",
-      status: "success",
-      message: "Approval limit valid.",
+      message: "Description provided.",
     });
   }
 

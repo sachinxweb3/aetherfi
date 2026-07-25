@@ -1,67 +1,48 @@
-import type {
-  WorkflowModel,
-  WorkflowNodeSettings,
-  WorkflowNodeState,
-} from "@/models/workflow";
+import type { WorkflowModel, WorkflowNodeState } from "@/models/workflow";
 
-export function renameNode(
+export function renameWorkflowNode(
   workflow: WorkflowModel,
   nodeId: string,
-  title: string,
+  newTitle: string
 ): WorkflowModel {
   return {
     ...workflow,
     nodes: workflow.nodes.map((node) =>
-      node.id === nodeId
-        ? {
-            ...node,
-            title,
-          }
-        : node,
+      node.id === nodeId ? { ...node, title: newTitle } : node
     ),
   };
 }
 
-export function updateNodeDescription(
+export function updateWorkflowNodeDescription(
   workflow: WorkflowModel,
   nodeId: string,
-  description: string,
+  newDescription: string
 ): WorkflowModel {
   return {
     ...workflow,
     nodes: workflow.nodes.map((node) =>
-      node.id === nodeId
-        ? {
-            ...node,
-            description,
-          }
-        : node,
+      node.id === nodeId ? { ...node, description: newDescription } : node
     ),
   };
 }
 
-export function updateNodeState(
+export function updateWorkflowNodeState(
   workflow: WorkflowModel,
   nodeId: string,
-  state: WorkflowNodeState,
+  newState: WorkflowNodeState
 ): WorkflowModel {
   return {
     ...workflow,
     nodes: workflow.nodes.map((node) =>
-      node.id === nodeId
-        ? {
-            ...node,
-            state,
-          }
-        : node,
+      node.id === nodeId ? { ...node, state: newState } : node
     ),
   };
 }
 
-export function updateNodeSettings(
+export function updateWorkflowNodeSettings(
   workflow: WorkflowModel,
   nodeId: string,
-  settings: Partial<WorkflowNodeSettings>,
+  settingsPatch: Record<string, unknown>
 ): WorkflowModel {
   return {
     ...workflow,
@@ -71,48 +52,42 @@ export function updateNodeSettings(
             ...node,
             settings: {
               ...node.settings,
-              ...settings,
+              ...settingsPatch,
             },
           }
-        : node,
+        : node
     ),
   };
 }
 
-export function moveNode(
+export function updateWorkflowNodePosition(
   workflow: WorkflowModel,
   nodeId: string,
-  position: {
-    x: number;
-    y: number;
-  },
+  position: { x: number; y: number }
 ): WorkflowModel {
-  const exists = workflow.layout.nodes.some(
-    (item) => item.id === nodeId,
-  );
+  const currentLayout = workflow.layout ?? { nodes: [] };
+  const currentNodes = currentLayout.nodes ?? [];
 
-  const updatedLayoutNodes = exists
-    ? workflow.layout.nodes.map((item) =>
-        item.id === nodeId
-          ? {
-              ...item,
-              position,
-            }
-          : item,
+  const exists = currentNodes.some((item) => item.id === nodeId);
+
+  const updatedNodes = exists
+    ? currentNodes.map((item) =>
+        item.id === nodeId ? { ...item, position } : item
       )
-    : [
-        ...workflow.layout.nodes,
-        {
-          id: nodeId,
-          position,
-        },
-      ];
+    : [...currentNodes, { id: nodeId, position }];
 
   return {
     ...workflow,
     layout: {
-      ...workflow.layout,
-      nodes: updatedLayoutNodes,
+      ...currentLayout,
+      nodes: updatedNodes,
     },
   };
 }
+
+// Aliases required by workflowStore.ts
+export const moveNode = updateWorkflowNodePosition;
+export const renameNode = renameWorkflowNode;
+export const updateNodeDescription = updateWorkflowNodeDescription;
+export const updateNodeSettings = updateWorkflowNodeSettings;
+export const updateNodeState = updateWorkflowNodeState;

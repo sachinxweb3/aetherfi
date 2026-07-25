@@ -1,9 +1,48 @@
-import type { WorkflowModel } from "@/models/workflow";
+import type { WorkflowModel, WorkflowNodeState } from "@/models/workflow";
 
-export function renameNode(
+export function renameWorkflowNode(
   workflow: WorkflowModel,
   nodeId: string,
-  title: string,
+  newTitle: string
+): WorkflowModel {
+  return {
+    ...workflow,
+    nodes: workflow.nodes.map((node) =>
+      node.id === nodeId ? { ...node, title: newTitle } : node
+    ),
+  };
+}
+
+export function updateWorkflowNodeDescription(
+  workflow: WorkflowModel,
+  nodeId: string,
+  newDescription: string
+): WorkflowModel {
+  return {
+    ...workflow,
+    nodes: workflow.nodes.map((node) =>
+      node.id === nodeId ? { ...node, description: newDescription } : node
+    ),
+  };
+}
+
+export function updateWorkflowNodeState(
+  workflow: WorkflowModel,
+  nodeId: string,
+  newState: WorkflowNodeState
+): WorkflowModel {
+  return {
+    ...workflow,
+    nodes: workflow.nodes.map((node) =>
+      node.id === nodeId ? { ...node, state: newState } : node
+    ),
+  };
+}
+
+export function updateWorkflowNodeSettings(
+  workflow: WorkflowModel,
+  nodeId: string,
+  settingsPatch: Record<string, unknown>
 ): WorkflowModel {
   return {
     ...workflow,
@@ -11,50 +50,36 @@ export function renameNode(
       node.id === nodeId
         ? {
             ...node,
-            title,
+            settings: {
+              ...node.settings,
+              ...settingsPatch,
+            },
           }
-        : node,
+        : node
     ),
   };
 }
 
-export function updateNodeState(
+export function updateWorkflowNodePosition(
   workflow: WorkflowModel,
   nodeId: string,
-  state: WorkflowModel["nodes"][number]["state"],
+  position: { x: number; y: number }
 ): WorkflowModel {
-  return {
-    ...workflow,
-    nodes: workflow.nodes.map((node) =>
-      node.id === nodeId
-        ? {
-            ...node,
-            state,
-          }
-        : node,
-    ),
-  };
-}
+  if (!workflow.layout) {
+    return workflow;
+  }
 
-export function moveNode(
-  workflow: WorkflowModel,
-  nodeId: string,
-  position: {
-    x: number;
-    y: number;
-  },
-): WorkflowModel {
   return {
     ...workflow,
     layout: {
       ...workflow.layout,
-      nodes: workflow.layout.nodes.map((layoutNode) =>
+      nodes: (workflow.layout.nodes || []).map((layoutNode) =>
         layoutNode.id === nodeId
           ? {
               ...layoutNode,
               position,
             }
-          : layoutNode,
+          : layoutNode
       ),
     },
   };

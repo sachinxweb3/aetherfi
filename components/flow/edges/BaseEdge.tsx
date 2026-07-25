@@ -2,7 +2,6 @@
 
 import {
   BaseEdge as ReactFlowBaseEdge,
-  EdgeLabelRenderer,
   EdgeProps,
   getBezierPath,
 } from "@xyflow/react";
@@ -70,21 +69,17 @@ export default function BaseEdge(props: EdgeProps) {
   const style = edgeStyles[state];
 
   return (
-    <>
-      <ReactFlowBaseEdge
-        id={id}
-        path={path}
-        style={{
-          stroke: style.stroke,
-          strokeWidth: style.strokeWidth,
-          strokeLinecap: "round",
-          strokeLinejoin: "round",
-          transition:
-            "stroke 340ms cubic-bezier(0.16, 1, 0.3, 1), stroke-width 340ms cubic-bezier(0.16, 1, 0.3, 1)",
-        }}
-      />
-
-      <EdgeLabelRenderer />
-    </>
+    <ReactFlowBaseEdge
+      id={id}
+      path={path}
+      style={{
+        stroke: style.stroke,
+        strokeWidth: style.strokeWidth,
+        strokeLinecap: "round",
+        strokeLinejoin: "round",
+        transition:
+          "stroke 340ms cubic-bezier(0.16, 1, 0.3, 1), stroke-width 340ms cubic-bezier(0.16, 1, 0.3, 1)",
+      }}
+    />
   );
 }

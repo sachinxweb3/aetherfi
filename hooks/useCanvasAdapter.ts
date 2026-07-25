@@ -1,37 +1,23 @@
-import type { Node } from "@xyflow/react";
-
-import type { WorkflowModel } from "@/models/workflow";
+import { Node } from "@xyflow/react";
 import type { FlowNodeData } from "@/components/flow/types/FlowNodeData";
-import { presentationRegistry } from "@/components/flow/config/presentationRegistry";
+import type { WorkflowModel } from "@/models/workflow";
 
 export function useCanvasAdapter(
-  workflow: WorkflowModel,
+  workflow: WorkflowModel
 ): Node<FlowNodeData>[] {
   return workflow.nodes.map((node, index) => {
-    const layout = workflow.layout.nodes.find(
-      (item) => item.id === node.id,
+    const layout = workflow.layout?.nodes?.find(
+      (item) => item.id === node.id
     );
 
     return {
       id: node.id,
-
-      type:
-        presentationRegistry[node.id]?.type ??
-        "decision",
-
-      position: layout?.position ?? {
-        x: index * 300,
-        y: 140,
-      },
-
+      type: "start",
+      position: layout?.position ?? { x: 250, y: index * 150 },
       data: {
         title: node.title,
-        subtitle:
-          presentationRegistry[node.id]?.subtitle ??
-          "",
-        variant:
-          presentationRegistry[node.id]?.variant ??
-          "wallet",
+        subtitle: node.description ?? "",
+        variant: "wallet",
         state: node.state,
       },
     };

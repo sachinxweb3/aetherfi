@@ -1,6 +1,6 @@
 "use client";
 
-import { NodeProps } from "@xyflow/react";
+import { Node, NodeProps } from "@xyflow/react";
 import { Zap } from "lucide-react";
 
 import BaseNode from "../BaseNode";
@@ -8,7 +8,7 @@ import { FlowNodeData } from "../types/FlowNodeData";
 
 export default function ActionNode({
   data,
-}: NodeProps<FlowNodeData>) {
+}: NodeProps<Node<FlowNodeData>>) {
   return (
     <BaseNode
       data={data}

@@ -17,14 +17,14 @@ interface BaseNodeProps {
   data: FlowNodeData;
   icon: ReactNode;
   accent: string;
-  variant?: NodeVariant; // Optional to prevent runtime crashes
+  variant?: NodeVariant;
 }
 
 export default function BaseNode({
   data,
   icon,
   accent,
-  variant = "wallet", // Default fallback
+  variant = "wallet",
 }: BaseNodeProps) {
   const variantConfig: Record<
     NodeVariant,
@@ -80,10 +80,8 @@ export default function BaseNode({
     },
   };
 
-  // Safe fallback lookup to ensure currentVariant is never undefined
   const currentVariant = variantConfig[variant] || variantConfig["wallet"];
 
-  // Check state passed dynamically via flow state
   const isActive = data.state === "active";
   const isSuccess = data.state === "success";
   const isSelected = data.selected === true;
@@ -115,7 +113,7 @@ export default function BaseNode({
         }}
       />
 
-      {/* Premium Card Surface with separated selection and success styling */}
+      {/* Card Surface */}
       <div
         style={{
           background: isSuccess ? undefined : currentVariant.surface,
@@ -130,7 +128,6 @@ export default function BaseNode({
           isSelected ? "ring-2 ring-violet-500 ring-offset-2 dark:ring-offset-neutral-950" : ""
         }`}
       >
-        {/* Glass highlight */}
         <motion.div
           className="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-white to-transparent"
           initial={{ opacity: 0.65 }}
@@ -140,7 +137,6 @@ export default function BaseNode({
           }}
         />
 
-        {/* Wallet Top Soft Gradient Overlay */}
         {variant === "wallet" && !isSuccess && (
           <div
             className="absolute inset-x-0 top-0 h-24"
@@ -151,7 +147,6 @@ export default function BaseNode({
           />
         )}
 
-        {/* Accent Glow */}
         <motion.div
           aria-hidden
           className="absolute -right-10 -top-10 h-32 w-32 rounded-full blur-3xl"
@@ -174,7 +169,6 @@ export default function BaseNode({
           }}
         />
 
-        {/* Target Connector */}
         <Handle
           type="target"
           position={Position.Top}
@@ -184,14 +178,12 @@ export default function BaseNode({
 
         <div className="relative p-6">
           <div className="flex items-center gap-5">
-            {/* Icon Surface */}
             <div
               className="relative flex h-16 w-16 shrink-0 items-center justify-center overflow-hidden rounded-3xl border border-white/70 shadow-[0_8px_24px_rgba(15,23,42,0.08)]"
               style={{
                 background: currentVariant.iconBackground,
               }}
             >
-              {/* Inner highlight */}
               <div
                 className="absolute inset-0 rounded-3xl"
                 style={{
@@ -199,11 +191,9 @@ export default function BaseNode({
                 }}
               />
 
-              {/* Wallet Specific Icon Highlights */}
               {variant === "wallet" && (
                 <>
                   <div className="absolute inset-1 rounded-[20px] border border-blue-200/70" />
-
                   <div
                     className="absolute inset-3 rounded-full blur-xl"
                     style={{
@@ -213,7 +203,6 @@ export default function BaseNode({
                 </>
               )}
 
-              {/* Soft radial */}
               <div
                 className="absolute inset-2 rounded-2xl blur-xl"
                 style={{
@@ -240,7 +229,6 @@ export default function BaseNode({
               </motion.div>
             </div>
 
-            {/* Content */}
             <div className="flex-1">
               <div className="mb-2 flex items-center gap-2">
                 <div
@@ -272,12 +260,9 @@ export default function BaseNode({
             </div>
           </div>
 
-          {/* Decorative Divider */}
           <div className="mt-6 h-px w-full bg-gradient-to-r from-transparent via-black/8 to-transparent dark:via-white/10" />
 
-          {/* Bottom Section */}
           <div className="mt-5 flex items-center justify-between">
-            {/* Status Pill */}
             <div className="inline-flex items-center gap-2 rounded-full border border-black/5 bg-white/70 px-3 py-1.5 shadow-sm backdrop-blur-md dark:border-white/10 dark:bg-white/5">
               <span
                 className="h-2 w-2 rounded-full"
@@ -292,7 +277,6 @@ export default function BaseNode({
               </span>
             </div>
 
-            {/* Accent Badge */}
             <div
               className="rounded-full px-3 py-1 text-[11px] font-semibold text-white shadow-lg transition-transform duration-300 group-hover:scale-105"
               style={{
@@ -306,7 +290,6 @@ export default function BaseNode({
             </div>
           </div>
 
-          {/* Bottom Accent Line */}
           <motion.div
             aria-hidden
             className="absolute bottom-0 left-6 right-6 rounded-full"
@@ -332,7 +315,6 @@ export default function BaseNode({
           />
         </div>
 
-        {/* Source/Output Connector */}
         <Handle
           type="source"
           position={Position.Bottom}
