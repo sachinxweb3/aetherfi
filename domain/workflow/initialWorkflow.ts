@@ -7,57 +7,47 @@ export const initialWorkflow: WorkflowModel = {
   nodes: [
     {
       id: "wallet",
-      title: "Wallet Connected",
-      description: "Source wallet authenticated and ready for transaction execution.",
+      title: "Connect Wallet",
+      description: "Secure Identity",
       state: "idle",
-      settings: {
-        walletType: "MetaMask / Web3",
-      },
+      settings: { walletType: "MetaMask" },
     },
     {
       id: "review",
-      title: "Simulation Review",
-      description: "Simulating on-chain state changes and pre-validation checks.",
+      title: "Review Transaction",
+      description: "Verify Details",
       state: "idle",
-      settings: {
-        requireConfirmation: true,
-      },
+      settings: { requireConfirmation: true },
     },
     {
       id: "risk",
-      title: "AI Risk Analysis",
-      description: "Evaluating transaction safety, gas spikes, and contract risks.",
+      title: "Risk Analysis",
+      description: "Confidence Engine",
       state: "idle",
-      settings: {
-        autoRetry: false,
-      },
+      settings: { autoRetry: false },
     },
     {
       id: "approval",
-      title: "User Authorization",
-      description: "Waiting for user cryptographic signature authorization.",
+      title: "Approval",
+      description: "Ready to Execute",
       state: "idle",
-      settings: {
-        requireConfirmation: true,
-      },
+      settings: { requireConfirmation: true },
     },
     {
       id: "success",
-      title: "Execution Finalized",
-      description: "Transaction submitted and confirmed on Arc network.",
+      title: "Transaction Complete",
+      description: "Journey Successful",
       state: "idle",
-      settings: {
-        timeoutMs: 5000,
-      },
+      settings: { timeoutMs: 5000 },
     },
   ],
   layout: {
     nodes: [
-      { id: "wallet", position: { x: 250, y: 0 } },
-      { id: "review", position: { x: 250, y: 150 } },
-      { id: "risk", position: { x: 250, y: 300 } },
-      { id: "approval", position: { x: 250, y: 450 } },
-      { id: "success", position: { x: 250, y: 600 } },
+      { id: "wallet", position: { x: 0, y: 0 } },
+      { id: "review", position: { x: 320, y: 0 } },
+      { id: "risk", position: { x: 640, y: 0 } },
+      { id: "approval", position: { x: 960, y: 0 } },
+      { id: "success", position: { x: 1280, y: 0 } },
     ],
   },
 };
