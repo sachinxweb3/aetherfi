@@ -3,8 +3,8 @@
 import * as React from "react"
 import { usePublicClient } from "wagmi"
 import { runSecurityAudit, type SecurityAuditResult } from "@/lib/audit/securityAudit"
-import { runAetherE2eTestSuite } from "@/tests/e2e/terminal.test.ts"
-import { ShieldCheck, Server, TestTube2, CheckCircle2, AlertTriangle, RefreshCw } from "lucide-react"
+import { runAetherE2eTestSuite } from "@/tests/e2e/terminal.test"
+import { ShieldCheck, Server, CheckCircle2, RefreshCw } from "lucide-react"
 
 export function SystemHealthAudit() {
   const publicClient = usePublicClient()
