@@ -6,6 +6,7 @@ import { IntentEngineTerminal } from "@/components/terminal/IntentEngineTerminal
 import { DePinNodeTerminal } from "@/components/terminal/DePinNodeTerminal"
 import { AetherWorkflowCanvas } from "@/components/workflow/AetherWorkflowCanvas"
 import { PostQuantumTerminal } from "@/components/terminal/PostQuantumTerminal"
+import { SystemHealthAudit } from "@/components/terminal/SystemHealthAudit"
 
 export default function Home() {
   return (
@@ -32,6 +33,7 @@ export default function Home() {
           <StealthPrivacyTerminal />
           <DePinNodeTerminal />
           <PostQuantumTerminal />
+          <SystemHealthAudit />
         </section>
       </main>
     </div>
