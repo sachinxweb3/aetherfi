@@ -1,12 +1,12 @@
-import { getDefaultConfig } from "@rainbow-me/rainbowkit"
-import { defineChain } from "viem"
-import { mainnet, arbitrum, sepolia } from "wagmi/chains"
+import { http, createConfig } from "wagmi"
+import { mainnet, sepolia, arbitrum } from "wagmi/chains"
+import { type Chain } from "viem"
 
-export const arcTestnet = defineChain({
-  id: 5040,
+export const arcTestnet: Chain = {
+  id: 5042002,
   name: "Arc Chain Testnet",
   nativeCurrency: {
-    name: "USD Coin",
+    name: "USDC",
     symbol: "USDC",
     decimals: 18,
   },
@@ -14,21 +14,25 @@ export const arcTestnet = defineChain({
     default: {
       http: ["https://rpc.testnet.arc.network"],
     },
+    public: {
+      http: ["https://rpc.testnet.arc.network"],
+    },
   },
   blockExplorers: {
     default: {
-      name: "Arc Explorer",
-      url: "https://explorer.testnet.arc.network",
+      name: "ArcScan",
+      url: "https://testnet.arcscan.app",
     },
   },
   testnet: true,
-})
+}
 
-const projectId = process.env.NEXT_PUBLIC_WALLET_CONNECT_PROJECT_ID || "aetherfi_default_project_id"
-
-export const config = getDefaultConfig({
-  appName: "AetherFI OS",
-  projectId,
-  chains: [mainnet, arbitrum, sepolia, arcTestnet],
-  ssr: true,
+export const config = createConfig({
+  chains: [arcTestnet, mainnet, arbitrum, sepolia],
+  transports: {
+    [arcTestnet.id]: http(),
+    [mainnet.id]: http(),
+    [arbitrum.id]: http(),
+    [sepolia.id]: http(),
+  },
 })
