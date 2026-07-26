@@ -5,6 +5,7 @@ import { StealthPrivacyTerminal } from "@/components/terminal/StealthPrivacyTerm
 import { IntentEngineTerminal } from "@/components/terminal/IntentEngineTerminal"
 import { DePinNodeTerminal } from "@/components/terminal/DePinNodeTerminal"
 import { AetherWorkflowCanvas } from "@/components/workflow/AetherWorkflowCanvas"
+import { PostQuantumTerminal } from "@/components/terminal/PostQuantumTerminal"
 
 export default function Home() {
   return (
@@ -30,6 +31,7 @@ export default function Home() {
           <CrossChainRelay />
           <StealthPrivacyTerminal />
           <DePinNodeTerminal />
+          <PostQuantumTerminal />
         </section>
       </main>
     </div>
