@@ -1,6 +1,7 @@
 import { Header } from "@/components/header"
 import { ArcGasMonitor } from "@/components/terminal/ArcGasMonitor"
 import { CrossChainRelay } from "@/components/terminal/CrossChainRelay"
+import { StealthPrivacyTerminal } from "@/components/terminal/StealthPrivacyTerminal"
 
 export default function Home() {
   return (
@@ -22,6 +23,7 @@ export default function Home() {
         <section id="terminal" className="w-full space-y-6">
           <ArcGasMonitor />
           <CrossChainRelay />
+          <StealthPrivacyTerminal />
         </section>
       </main>
     </div>

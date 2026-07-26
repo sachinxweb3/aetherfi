@@ -65,3 +65,21 @@ Provide real-time RPC gas parameters, zero-slippage USDC native gas calculations
 
 Impact:
 Terminal displays live network gas rates ($USDC execution fees) and provides a cross-chain messaging route interface between Arc Chain, Ethereum, Arbitrum, and Sepolia.
+
+---
+
+## 2026-07-26
+
+Completed Milestone 3: ZK-Privacy, Stealth Addresses & Encrypted Activity Logs.
+
+Files:
+- lib/privacy/stealthAddress.ts
+- lib/privacy/encryptedLogger.ts
+- components/terminal/StealthPrivacyTerminal.tsx
+- app/page.tsx
+
+Reason:
+Implement EIP-5564 stealth payment address derivation and zero-knowledge client-side AES-256-GCM encrypted activity log persistence.
+
+Impact:
+Users can derive stealth payment targets, view viewing/spending key structures, and encrypt/decrypt confidential execution logs client-side.
