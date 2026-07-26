@@ -2,112 +2,227 @@
 
 import React, { useState } from "react";
 import Link from "next/link";
-import { MessageCircle, ExternalLink, ShieldCheck, Cpu, ChevronRight, Zap } from "lucide-react";
+import { Zap, Shield, Wallet, X, ArrowRight, AlertCircle, LogOut } from "lucide-react";
+import { connectWeb3Wallet } from "@/lib/web3/wallet";
 
 export default function Header() {
-  const [isConnected, setIsConnected] = useState(false);
-  const [passcodeActive, setPasscodeActive] = useState(false);
+  const [isWalletOpen, setIsWalletOpen] = useState(false);
+  const [walletState, setWalletState] = useState<{
+    address: string;
+    balance: string;
+    walletType: string;
+  } | null>(null);
+
+  const [shieldActive, setShieldMode] = useState(false);
+  const [connecting, setConnecting] = useState(false);
+  const [errorMessage, setErrorMessage] = useState<string | null>(null);
+
+  const handleRealWalletConnect = async (walletType: string) => {
+    setConnecting(true);
+    setErrorMessage(null);
+
+    try {
+      // Pass forcePrompt = true to ensure wallet permission modal pops up
+      const data = await connectWeb3Wallet(true);
+      setWalletState({
+        address: data.address,
+        balance: data.balance,
+        walletType,
+      });
+      setIsWalletOpen(false);
+    } catch (err: any) {
+      setErrorMessage(err.message || "Failed to connect wallet.");
+    } finally {
+      setConnecting(false);
+    }
+  };
+
+  const handleDisconnect = async () => {
+    setWalletState(null);
+    // Clear browser wallet permissions if available
+    if (typeof window !== "undefined" && window.ethereum?.request) {
+      try {
+        await window.ethereum.request({
+          method: "wallet_revokePermissions",
+          params: [{ eth_accounts: {} }],
+        });
+      } catch (e) {
+        // Fallback
+      }
+    }
+  };
 
   return (
-    <header className="sticky top-0 z-50 w-full border-b border-white/10 bg-slate-950/80 backdrop-blur-xl">
-      <div className="mx-auto flex max-w-7xl items-center justify-between px-6 py-4">
-        {/* Brand Logo & Founder Signature */}
-        <div className="flex items-center gap-6">
+    <>
+      <header className="sticky top-0 z-50 w-full border-b border-white/[0.08] bg-[#02040A]/80 backdrop-blur-xl px-4 sm:px-6 py-3.5">
+        <div className="max-w-7xl mx-auto flex items-center justify-between gap-4">
+          
+          {/* Brand Logo & Chain Status */}
           <div className="flex items-center gap-3">
-            <Link href="/" className="flex items-center gap-3 group">
-              <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-gradient-to-tr from-violet-600 via-indigo-500 to-cyan-400 p-[1px] shadow-lg shadow-indigo-500/20 group-hover:scale-105 transition-transform">
-                <div className="flex h-full w-full items-center justify-center rounded-[11px] bg-slate-950">
-                  <Zap className="h-5 w-5 text-cyan-400 fill-cyan-400/20" />
-                </div>
+            <Link href="/" className="flex items-center gap-2">
+              <div className="flex h-8 w-8 items-center justify-center rounded-xl bg-cyan-500/20 text-cyan-400 border border-cyan-500/30">
+                <Zap className="h-4 w-4" />
               </div>
-              <div className="flex items-center gap-2">
-                <span className="text-xl font-bold tracking-wider text-white">
-                  AETHER<span className="text-cyan-400">FI</span>
-                </span>
-                <span className="rounded-full border border-cyan-500/30 bg-cyan-500/10 px-2 py-0.5 text-[10px] font-semibold text-cyan-400">
-                  ARC TESTNET
-                </span>
-              </div>
+              <span className="font-extrabold text-lg text-white tracking-wide">AETHERFI</span>
             </Link>
-
-            <span className="text-[11px] text-slate-400 border-l border-white/10 pl-3">
-              Made by{" "}
-              <a
-                href="https://linktr.ee/sachinxweb3"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="font-medium text-cyan-400 underline decoration-cyan-500/40 hover:text-cyan-300"
-              >
-                Sachin
-              </a>
+            <span className="hidden sm:inline-flex items-center gap-1.5 rounded-full border border-cyan-500/30 bg-cyan-500/10 px-2.5 py-0.5 text-[10px] font-mono text-cyan-300">
+              <span className="h-1.5 w-1.5 rounded-full bg-cyan-400 animate-pulse" />
+              ARC TESTNET (5042002)
             </span>
           </div>
+
+          {/* Navigation Links */}
+          <nav className="hidden lg:flex items-center gap-6 text-xs font-medium text-slate-300">
+            <Link href="/" className="hover:text-cyan-400 transition-colors">DeFi Terminal</Link>
+            <Link href="/" className="hover:text-cyan-400 transition-colors">Prediction Market</Link>
+            <Link href="/" className="hover:text-cyan-400 transition-colors">ZK Vault</Link>
+            <Link href="/" className="hover:text-cyan-400 transition-colors">Docs & Whitepaper</Link>
+            <a href="https://arc.network" target="_blank" rel="noreferrer" className="hover:text-cyan-400 transition-colors text-slate-400">Arc Ecosystem ↗</a>
+          </nav>
+
+          {/* Action Buttons */}
+          <div className="flex items-center gap-3">
+            
+            {/* Shield Toggle */}
+            <button
+              onClick={() => setShieldMode(!shieldActive)}
+              className={`flex items-center gap-1.5 px-3 py-1.5 rounded-xl border text-xs font-medium transition-all ${
+                shieldActive 
+                  ? "bg-indigo-500/20 text-indigo-300 border-indigo-500/40" 
+                  : "bg-white/[0.03] text-slate-400 border-white/[0.08] hover:text-white"
+              }`}
+            >
+              <Shield className="h-3.5 w-3.5" />
+              <span className="hidden sm:inline">{shieldActive ? "Shield On" : "Shield Mode"}</span>
+            </button>
+
+            {/* Wallet Button */}
+            {walletState ? (
+              <div className="flex items-center gap-2">
+                <div className="flex items-center gap-2 rounded-xl bg-emerald-500/10 border border-emerald-500/30 px-3.5 py-1.5 text-xs font-mono text-emerald-400">
+                  <span className="h-2 w-2 rounded-full bg-emerald-400" />
+                  <span>
+                    {walletState.address.substring(0, 6)}...{walletState.address.substring(walletState.address.length - 4)}
+                  </span>
+                  <span className="text-[10px] text-emerald-300 bg-emerald-500/20 px-1.5 py-0.5 rounded ml-1">
+                    {walletState.balance} USDC
+                  </span>
+                </div>
+
+                <button
+                  onClick={handleDisconnect}
+                  title="Disconnect Wallet & Reset Permissions"
+                  className="p-2 rounded-xl border border-red-500/30 bg-red-500/10 text-red-400 hover:bg-red-500/20 transition-all"
+                >
+                  <LogOut className="h-3.5 w-3.5" />
+                </button>
+              </div>
+            ) : (
+              <button
+                onClick={() => setIsWalletOpen(true)}
+                className="flex items-center gap-2 rounded-xl bg-gradient-to-r from-cyan-500 to-blue-600 px-4 py-2 text-xs font-semibold text-white shadow-lg shadow-cyan-500/20 hover:brightness-110 active:scale-95 transition-all"
+              >
+                <Wallet className="h-3.5 w-3.5" />
+                <span>Connect Wallet</span>
+              </button>
+            )}
+
+          </div>
+
         </div>
+      </header>
 
-        {/* Navigation Ecosystem Links */}
-        <nav className="hidden lg:flex items-center gap-6 text-xs font-medium text-slate-300">
-          <Link href="/terminal" className="hover:text-cyan-400 transition-colors">
-            DeFi Terminal
-          </Link>
-          <Link href="/prediction" className="hover:text-cyan-400 transition-colors">
-            Prediction Market
-          </Link>
-          <Link href="/privacy" className="hover:text-cyan-400 transition-colors flex items-center gap-1.5">
-            <ShieldCheck className="h-3.5 w-3.5 text-emerald-400" />
-            ZK Vault
-          </Link>
-          <Link href="/docs" className="hover:text-cyan-400 transition-colors">
-            Docs & Whitepaper
-          </Link>
-          <a
-            href="https://arc.network"
-            target="_blank"
-            rel="noopener noreferrer"
-            className="flex items-center gap-1 text-slate-400 hover:text-white transition-colors"
-          >
-            Arc Ecosystem <ExternalLink className="h-3 w-3" />
-          </a>
-        </nav>
+      {/* Complete Arc-Compatible Web3 Wallet Modal */}
+      {isWalletOpen && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-md p-4">
+          <div className="w-full max-w-md rounded-2xl border border-white/10 bg-[#090C15] p-6 shadow-2xl relative space-y-5">
+            
+            <div className="flex items-center justify-between border-b border-white/10 pb-4">
+              <div className="flex items-center gap-2">
+                <Wallet className="h-5 w-5 text-cyan-400" />
+                <h3 className="text-sm font-bold text-white">Connect Web3 Wallet (Arc Native)</h3>
+              </div>
+              <button
+                onClick={() => setIsWalletOpen(false)}
+                className="rounded-lg p-1 text-slate-400 hover:bg-white/10 hover:text-white transition-all"
+              >
+                <X className="h-4 w-4" />
+              </button>
+            </div>
 
-        {/* Action Controls & Contact Buttons */}
-        <div className="flex items-center gap-3">
-          {/* Direct WhatsApp Support Button */}
-          <a
-            href="https://wa.me/918950434723?text=Hi%20Sachin,%20I%20have%20a%20query%20regarding%20AetherFI"
-            target="_blank"
-            rel="noopener noreferrer"
-            className="hidden sm:flex items-center gap-2 rounded-xl border border-emerald-500/30 bg-emerald-500/10 px-3.5 py-2 text-xs font-medium text-emerald-400 hover:bg-emerald-500/20 transition-all"
-          >
-            <MessageCircle className="h-3.5 w-3.5" />
-            <span>WhatsApp</span>
-          </a>
+            {errorMessage && (
+              <div className="flex items-center gap-2 rounded-xl border border-red-500/30 bg-red-500/10 p-3 text-xs text-red-300 font-mono">
+                <AlertCircle className="h-4 w-4 shrink-0 text-red-400" />
+                <span>{errorMessage}</span>
+              </div>
+            )}
 
-          {/* Passcode / Shield Mode Toggle */}
-          <button
-            onClick={() => setPasscodeActive(!passcodeActive)}
-            className={`flex items-center gap-1.5 rounded-xl border px-3 py-2 text-xs font-medium transition-all ${
-              passcodeActive
-                ? "border-amber-500/50 bg-amber-500/10 text-amber-400"
-                : "border-slate-800 bg-slate-900 text-slate-400 hover:text-white"
-            }`}
-          >
-            <Cpu className="h-3.5 w-3.5" />
-            <span>{passcodeActive ? "Shield Active" : "Shield Mode"}</span>
-          </button>
+            <div className="space-y-2">
+              
+              {/* Universal Browser Wallet (Rabby / Zerion / MetaMask) */}
+              <button
+                onClick={() => handleRealWalletConnect("Browser Extension Wallet")}
+                disabled={connecting}
+                className="w-full flex items-center justify-between p-3 rounded-xl border border-white/10 bg-slate-900/60 hover:bg-cyan-500/10 hover:border-cyan-500/40 text-xs font-semibold text-white transition-all group disabled:opacity-50"
+              >
+                <div className="flex items-center gap-3">
+                  <div className="h-7 w-7 rounded-lg bg-cyan-500/20 border border-cyan-500/30 flex items-center justify-center text-cyan-400 font-bold">W</div>
+                  <div className="text-left">
+                    <span className="block">Browser Extension Wallet</span>
+                    <span className="text-[10px] text-slate-400 font-normal">Rabby, Zerion, MetaMask, Brave, Trust</span>
+                  </div>
+                </div>
+                <ArrowRight className="h-4 w-4 text-slate-500 group-hover:text-cyan-400 transition-colors" />
+              </button>
 
-          {/* Connect Wallet Button */}
-          <button
-            onClick={() => setIsConnected(!isConnected)}
-            className="group relative inline-flex items-center justify-center overflow-hidden rounded-xl p-[1px] font-medium text-xs shadow-md"
-          >
-            <span className="absolute inset-0 bg-gradient-to-r from-cyan-500 via-indigo-500 to-purple-500 transition-all duration-300 group-hover:opacity-90" />
-            <span className="relative flex items-center gap-2 rounded-[11px] bg-slate-950 px-4 py-2 transition-all duration-300 group-hover:bg-opacity-0 text-white">
-              {isConnected ? "0x5A...423" : "Connect Wallet"}
-              <ChevronRight className="h-3.5 w-3.5 text-cyan-400" />
-            </span>
-          </button>
+              {/* Rabby Specific Option */}
+              <button
+                onClick={() => handleRealWalletConnect("Rabby Wallet")}
+                disabled={connecting}
+                className="w-full flex items-center justify-between p-3 rounded-xl border border-white/10 bg-slate-900/60 hover:bg-cyan-500/10 hover:border-cyan-500/40 text-xs font-semibold text-white transition-all group disabled:opacity-50"
+              >
+                <div className="flex items-center gap-3">
+                  <div className="h-7 w-7 rounded-lg bg-indigo-500/20 border border-indigo-500/30 flex items-center justify-center text-indigo-400 font-bold">R</div>
+                  <span>Rabby Wallet</span>
+                </div>
+                <ArrowRight className="h-4 w-4 text-slate-500 group-hover:text-cyan-400 transition-colors" />
+              </button>
+
+              {/* Zerion Specific Option */}
+              <button
+                onClick={() => handleRealWalletConnect("Zerion Wallet")}
+                disabled={connecting}
+                className="w-full flex items-center justify-between p-3 rounded-xl border border-white/10 bg-slate-900/60 hover:bg-cyan-500/10 hover:border-cyan-500/40 text-xs font-semibold text-white transition-all group disabled:opacity-50"
+              >
+                <div className="flex items-center gap-3">
+                  <div className="h-7 w-7 rounded-lg bg-blue-500/20 border border-blue-500/30 flex items-center justify-center text-blue-400 font-bold">Z</div>
+                  <span>Zerion Wallet</span>
+                </div>
+                <ArrowRight className="h-4 w-4 text-slate-500 group-hover:text-cyan-400 transition-colors" />
+              </button>
+
+              {/* Coinbase Wallet */}
+              <button
+                onClick={() => handleRealWalletConnect("Coinbase Wallet")}
+                disabled={connecting}
+                className="w-full flex items-center justify-between p-3 rounded-xl border border-white/10 bg-slate-900/60 hover:bg-cyan-500/10 hover:border-cyan-500/40 text-xs font-semibold text-white transition-all group disabled:opacity-50"
+              >
+                <div className="flex items-center gap-3">
+                  <div className="h-7 w-7 rounded-lg bg-blue-600/20 border border-blue-600/30 flex items-center justify-center text-blue-300 font-bold">C</div>
+                  <span>Coinbase Wallet</span>
+                </div>
+                <ArrowRight className="h-4 w-4 text-slate-500 group-hover:text-cyan-400 transition-colors" />
+              </button>
+
+            </div>
+
+            <div className="pt-2 text-center border-t border-white/5">
+              <span className="text-[10px] text-slate-500 font-mono">Compatible with all Arc EVM Chains (ID: 5042002)</span>
+            </div>
+
+          </div>
         </div>
-      </div>
-    </header>
+      )}
+    </>
   );
 }
