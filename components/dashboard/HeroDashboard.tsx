@@ -20,6 +20,8 @@ import {
   ShieldAlert,
   Award,
   Bot,
+  Server,
+  BarChart2,
 } from "lucide-react";
 
 import ZkVaultModule from "@/components/modules/ZkVaultModule";
@@ -30,11 +32,14 @@ import ZkCreditScoringModule from "@/components/modules/ZkCreditScoringModule";
 import AiSwarmsModule from "@/components/modules/AiSwarmsModule";
 import SpatialTerminalModule from "@/components/modules/SpatialTerminalModule";
 import PredictionMarketModule from "@/components/modules/PredictionMarketModule";
+import DepinStakingModule from "@/components/modules/DepinStakingModule";
+import FinancialTimeMachineModule from "@/components/modules/FinancialTimeMachineModule";
+import MicroInsuranceModule from "@/components/modules/MicroInsuranceModule";
 import { executeArcOnChainTx } from "@/lib/web3/contracts";
 
 export default function HeroDashboard() {
   const [activeTab, setActiveTab] = useState<
-    "copilot" | "swarms" | "terminal" | "prediction" | "vault" | "dex" | "quantum" | "circuit" | "credit"
+    "copilot" | "swarms" | "depin" | "timemachine" | "insurance" | "terminal" | "prediction" | "vault" | "dex" | "quantum" | "circuit" | "credit"
   >("copilot");
 
   const [intent, setIntent] = useState("Stake 1000 USDC in Arc Yield Vault at 18.4% APY");
@@ -170,12 +175,12 @@ export default function HeroDashboard() {
           </p>
         </div>
 
-        {/* Complete Command Navigation Dock */}
+        {/* Master Command Dock - All Phases */}
         <div className="mb-8 flex justify-center">
-          <div className="inline-flex flex-wrap items-center justify-center gap-1.5 rounded-2xl border border-white/[0.08] bg-[#080B12] p-1.5 backdrop-blur-2xl">
+          <div className="inline-flex flex-wrap items-center justify-center gap-1.5 rounded-2xl border border-white/[0.08] bg-[#080B12] p-1.5 backdrop-blur-2xl max-w-5xl">
             <button
               onClick={() => setActiveTab("copilot")}
-              className={`flex items-center gap-1.5 rounded-xl px-3.5 py-2 text-xs font-medium transition-all ${
+              className={`flex items-center gap-1.5 rounded-xl px-3 py-1.5 text-xs font-medium transition-all ${
                 activeTab === "copilot"
                   ? "bg-gradient-to-r from-cyan-500 to-blue-600 text-white shadow-lg shadow-cyan-500/20"
                   : "text-slate-400 hover:text-white"
@@ -187,7 +192,7 @@ export default function HeroDashboard() {
 
             <button
               onClick={() => setActiveTab("swarms")}
-              className={`flex items-center gap-1.5 rounded-xl px-3.5 py-2 text-xs font-medium transition-all ${
+              className={`flex items-center gap-1.5 rounded-xl px-3 py-1.5 text-xs font-medium transition-all ${
                 activeTab === "swarms"
                   ? "bg-gradient-to-r from-cyan-400 to-teal-500 text-slate-950 font-bold shadow-lg shadow-cyan-400/20"
                   : "text-slate-400 hover:text-white"
@@ -198,8 +203,44 @@ export default function HeroDashboard() {
             </button>
 
             <button
+              onClick={() => setActiveTab("depin")}
+              className={`flex items-center gap-1.5 rounded-xl px-3 py-1.5 text-xs font-medium transition-all ${
+                activeTab === "depin"
+                  ? "bg-gradient-to-r from-blue-500 to-cyan-500 text-white font-bold shadow-lg shadow-blue-500/20"
+                  : "text-slate-400 hover:text-white"
+              }`}
+            >
+              <Server className="h-3.5 w-3.5" />
+              <span>DePIN GPU Vault</span>
+            </button>
+
+            <button
+              onClick={() => setActiveTab("timemachine")}
+              className={`flex items-center gap-1.5 rounded-xl px-3 py-1.5 text-xs font-medium transition-all ${
+                activeTab === "timemachine"
+                  ? "bg-gradient-to-r from-purple-500 to-indigo-600 text-white font-bold shadow-lg shadow-purple-500/20"
+                  : "text-slate-400 hover:text-white"
+              }`}
+            >
+              <BarChart2 className="h-3.5 w-3.5" />
+              <span>Time Machine</span>
+            </button>
+
+            <button
+              onClick={() => setActiveTab("insurance")}
+              className={`flex items-center gap-1.5 rounded-xl px-3 py-1.5 text-xs font-medium transition-all ${
+                activeTab === "insurance"
+                  ? "bg-gradient-to-r from-indigo-500 to-purple-600 text-white font-bold shadow-lg shadow-indigo-500/20"
+                  : "text-slate-400 hover:text-white"
+              }`}
+            >
+              <ShieldCheck className="h-3.5 w-3.5" />
+              <span>Micro-Insurance</span>
+            </button>
+
+            <button
               onClick={() => setActiveTab("terminal")}
-              className={`flex items-center gap-1.5 rounded-xl px-3.5 py-2 text-xs font-medium transition-all ${
+              className={`flex items-center gap-1.5 rounded-xl px-3 py-1.5 text-xs font-medium transition-all ${
                 activeTab === "terminal"
                   ? "bg-gradient-to-r from-emerald-500 to-teal-600 text-white shadow-lg shadow-emerald-500/20"
                   : "text-slate-400 hover:text-white"
@@ -211,7 +252,7 @@ export default function HeroDashboard() {
 
             <button
               onClick={() => setActiveTab("prediction")}
-              className={`flex items-center gap-1.5 rounded-xl px-3.5 py-2 text-xs font-medium transition-all ${
+              className={`flex items-center gap-1.5 rounded-xl px-3 py-1.5 text-xs font-medium transition-all ${
                 activeTab === "prediction"
                   ? "bg-gradient-to-r from-indigo-500 to-purple-600 text-white shadow-lg shadow-indigo-500/20"
                   : "text-slate-400 hover:text-white"
@@ -223,7 +264,7 @@ export default function HeroDashboard() {
 
             <button
               onClick={() => setActiveTab("vault")}
-              className={`flex items-center gap-1.5 rounded-xl px-3.5 py-2 text-xs font-medium transition-all ${
+              className={`flex items-center gap-1.5 rounded-xl px-3 py-1.5 text-xs font-medium transition-all ${
                 activeTab === "vault"
                   ? "bg-gradient-to-r from-indigo-500 to-purple-600 text-white shadow-lg shadow-indigo-500/20"
                   : "text-slate-400 hover:text-white"
@@ -234,20 +275,8 @@ export default function HeroDashboard() {
             </button>
 
             <button
-              onClick={() => setActiveTab("dex")}
-              className={`flex items-center gap-1.5 rounded-xl px-3.5 py-2 text-xs font-medium transition-all ${
-                activeTab === "dex"
-                  ? "bg-gradient-to-r from-emerald-500 to-teal-600 text-white shadow-lg shadow-emerald-500/20"
-                  : "text-slate-400 hover:text-white"
-              }`}
-            >
-              <Zap className="h-3.5 w-3.5" />
-              <span>Arc Swap</span>
-            </button>
-
-            <button
               onClick={() => setActiveTab("quantum")}
-              className={`flex items-center gap-1.5 rounded-xl px-3.5 py-2 text-xs font-medium transition-all ${
+              className={`flex items-center gap-1.5 rounded-xl px-3 py-1.5 text-xs font-medium transition-all ${
                 activeTab === "quantum"
                   ? "bg-gradient-to-r from-purple-500 to-pink-600 text-white shadow-lg shadow-purple-500/20"
                   : "text-slate-400 hover:text-white"
@@ -259,7 +288,7 @@ export default function HeroDashboard() {
 
             <button
               onClick={() => setActiveTab("circuit")}
-              className={`flex items-center gap-1.5 rounded-xl px-3.5 py-2 text-xs font-medium transition-all ${
+              className={`flex items-center gap-1.5 rounded-xl px-3 py-1.5 text-xs font-medium transition-all ${
                 activeTab === "circuit"
                   ? "bg-gradient-to-r from-red-500 to-amber-600 text-white shadow-lg shadow-red-500/20"
                   : "text-slate-400 hover:text-white"
@@ -271,7 +300,7 @@ export default function HeroDashboard() {
 
             <button
               onClick={() => setActiveTab("credit")}
-              className={`flex items-center gap-1.5 rounded-xl px-3.5 py-2 text-xs font-medium transition-all ${
+              className={`flex items-center gap-1.5 rounded-xl px-3 py-1.5 text-xs font-medium transition-all ${
                 activeTab === "credit"
                   ? "bg-gradient-to-r from-emerald-400 to-cyan-600 text-slate-950 font-bold shadow-lg shadow-emerald-400/20"
                   : "text-slate-400 hover:text-white"
@@ -408,6 +437,42 @@ export default function HeroDashboard() {
               </motion.div>
             )}
 
+            {/* 🖥️ DePIN GPU Staking Module */}
+            {activeTab === "depin" && (
+              <motion.div
+                key="depin"
+                initial={{ opacity: 0, y: 10 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: -10 }}
+              >
+                <DepinStakingModule />
+              </motion.div>
+            )}
+
+            {/* ⏳ Financial Time Machine Module */}
+            {activeTab === "timemachine" && (
+              <motion.div
+                key="timemachine"
+                initial={{ opacity: 0, y: 10 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: -10 }}
+              >
+                <FinancialTimeMachineModule />
+              </motion.div>
+            )}
+
+            {/* 🛡️ Micro-Insurance Module */}
+            {activeTab === "insurance" && (
+              <motion.div
+                key="insurance"
+                initial={{ opacity: 0, y: 10 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: -10 }}
+              >
+                <MicroInsuranceModule />
+              </motion.div>
+            )}
+
             {/* 📈 Trading Terminal Module */}
             {activeTab === "terminal" && (
               <motion.div
@@ -494,7 +559,7 @@ export default function HeroDashboard() {
           </AnimatePresence>
         </div>
 
-        {/* 3 Grid Streams */}
+        {/* 3 Grid Telemetry Streams */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-5 max-w-6xl mx-auto">
           
           <div className="rounded-2xl border border-white/[0.08] bg-[#090C15]/80 p-5 backdrop-blur-xl">
