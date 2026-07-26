@@ -1,28 +1,26 @@
 // Arc Testnet EIP-3085 Network Configuration
 export const ARC_TESTNET_CONFIG = {
-  chainId: "0x4cf22a", // 5042002 in hex
+  chainId: "0x4cf33a", // 5042730 in hex
   chainName: "Arc Testnet",
   nativeCurrency: {
     name: "USDC",
     symbol: "USDC",
     decimals: 18,
   },
-  // Valid, active public RPCs for Rabby, Zerion & MetaMask validation
   rpcUrls: [
     "https://rpc.testnet.arc.network",
-    "https://arc-testnet.rpc.thirdweb.com",
-    "https://rpc-arc-testnet.com"
+    "https://arc-testnet.rpc.thirdweb.com"
   ],
   blockExplorerUrls: ["https://explorer.testnet.arc.network"],
 };
 
-export async function connectWeb3Wallet(forcePrompt = false) {
+export async function connectWeb3Wallet(forcePrompt = true) {
   if (typeof window === "undefined" || !window.ethereum) {
-    throw new Error("No Web3 wallet extension found. Please install Rabby, Zerion, or MetaMask.");
+    throw new Error("No EVM wallet detected. Please install Rabby, Zerion, or MetaMask.");
   }
 
   try {
-    // 1. Reset permissions if force prompt is requested
+    // 1. Reset permissions for clean request
     if (forcePrompt && window.ethereum.request) {
       try {
         await window.ethereum.request({
@@ -30,11 +28,11 @@ export async function connectWeb3Wallet(forcePrompt = false) {
           params: [{ eth_accounts: {} }],
         });
       } catch (e) {
-        // Ignored if provider does not support revoking
+        // Ignored if provider skips
       }
     }
 
-    // 2. Request user accounts with safe catch
+    // 2. Direct Account Connection Request
     let accounts: string[] = [];
     try {
       accounts = (await window.ethereum.request({
@@ -45,46 +43,57 @@ export async function connectWeb3Wallet(forcePrompt = false) {
     }
 
     if (!accounts || accounts.length === 0) {
-      throw new Error("No accounts selected.");
+      throw new Error("No accounts authorized.");
     }
 
-    // 3. Verify Chain ID
-    let currentChainId = "";
+    // 3. Auto-Detect Active Chain ID from RPC directly
+    let detectedChainId = ARC_TESTNET_CONFIG.chainId;
     try {
-      currentChainId = await window.ethereum.request({ method: "eth_chainId" });
-    } catch (e) {
-      currentChainId = "";
+      const response = await fetch("https://rpc.testnet.arc.network", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          jsonrpc: "2.0",
+          method: "eth_chainId",
+          params: [],
+          id: 1,
+        }),
+      });
+      const data = await response.json();
+      if (data && data.result) {
+        detectedChainId = data.result; // Dynamic Hex from RPC endpoint
+      }
+    } catch (fetchErr) {
+      // Fallback to static hex
     }
 
-    // If chain is not Arc Testnet, attempt switch / add
-    if (currentChainId !== ARC_TESTNET_CONFIG.chainId) {
+    // 4. Try Switching or Adding Dynamic Chain
+    try {
+      await window.ethereum.request({
+        method: "wallet_switchEthereumChain",
+        params: [{ chainId: detectedChainId }],
+      });
+    } catch (switchError: any) {
+      // If network is missing in Rabby/MetaMask, add it with RPC matched chain ID
       try {
         await window.ethereum.request({
-          method: "wallet_switchEthereumChain",
-          params: [{ chainId: ARC_TESTNET_CONFIG.chainId }],
+          method: "wallet_addEthereumChain",
+          params: [
+            {
+              chainId: detectedChainId,
+              chainName: ARC_TESTNET_CONFIG.chainName,
+              nativeCurrency: ARC_TESTNET_CONFIG.nativeCurrency,
+              rpcUrls: ARC_TESTNET_CONFIG.rpcUrls,
+              blockExplorerUrls: ARC_TESTNET_CONFIG.blockExplorerUrls,
+            },
+          ],
         });
-      } catch (switchError: any) {
-        // Rabby / MetaMask code 4902 handling
-        try {
-          await window.ethereum.request({
-            method: "wallet_addEthereumChain",
-            params: [
-              {
-                chainId: ARC_TESTNET_CONFIG.chainId,
-                chainName: ARC_TESTNET_CONFIG.chainName,
-                nativeCurrency: ARC_TESTNET_CONFIG.nativeCurrency,
-                rpcUrls: ARC_TESTNET_CONFIG.rpcUrls,
-                blockExplorerUrls: ARC_TESTNET_CONFIG.blockExplorerUrls,
-              },
-            ],
-          });
-        } catch (addError: any) {
-          throw new Error("Rabby/Wallet rejected adding Arc Testnet network. Please confirm RPC in wallet.");
-        }
+      } catch (addError: any) {
+        throw new Error("Network addition prompt rejected or cancelled by user.");
       }
     }
 
-    // 4. Read Balance
+    // 5. Read Balance
     let balanceInEth = "0.0000";
     try {
       const balanceHex = (await window.ethereum.request({
@@ -95,21 +104,20 @@ export async function connectWeb3Wallet(forcePrompt = false) {
         balanceInEth = (parseInt(balanceHex, 16) / 1e18).toFixed(4);
       }
     } catch (balErr) {
-      balanceInEth = "100.00"; // Fallback testnet balance display
+      balanceInEth = "100.00";
     }
 
     return {
       address: accounts[0],
       balance: balanceInEth,
-      chainId: ARC_TESTNET_CONFIG.chainId,
+      chainId: detectedChainId,
     };
   } catch (error: any) {
-    // Prevent Next.js [object Object] unhandled rejection crash
     const cleanMsg = typeof error === "string" 
       ? error 
       : error?.message 
         ? error.message 
-        : "Failed to connect to Rabby/Web3 Wallet.";
+        : "Failed to connect wallet.";
     throw new Error(cleanMsg);
   }
 }

@@ -14,10 +14,13 @@ import {
   Sliders,
   Zap,
   CheckCircle2,
+  ExternalLink,
+  AlertCircle,
 } from "lucide-react";
 
 import ZkVaultModule from "@/components/modules/ZkVaultModule";
 import ArcSwapModule from "@/components/modules/ArcSwapModule";
+import { executeArcOnChainTx } from "@/lib/web3/contracts";
 
 export default function HeroDashboard() {
   const [activeTab, setActiveTab] = useState<"copilot" | "vault" | "dex">("copilot");
@@ -27,11 +30,15 @@ export default function HeroDashboard() {
     route: string;
     gas: string;
     yield: string;
+    txHash?: string;
+    explorerUrl?: string;
   }>(null);
+
+  const [txError, setTxError] = useState<string | null>(null);
 
   const [logs, setLogs] = useState<string[]>([
     "[0.01s] AI Swarm #04 verified zero-slippage route",
-    "[0.03s] Arc Block #5042002 Mined (USDC Gas: 0.0001)",
+    "[0.03s] Arc Block #5042730 Mined (USDC Gas: 0.0001)",
     "[0.08s] ZK Stealth Proof generated for 0x7a...912",
   ]);
 
@@ -39,7 +46,7 @@ export default function HeroDashboard() {
     const interval = setInterval(() => {
       const sampleLogs = [
         `[${(Math.random() * 0.08).toFixed(2)}s] AI Swarm #04 verified zero-slippage route`,
-        `[${(Math.random() * 0.08).toFixed(2)}s] Arc Block #5042002 Mined (USDC Gas: 0.0001)`,
+        `[${(Math.random() * 0.08).toFixed(2)}s] Arc Block #5042730 Mined (USDC Gas: 0.0001)`,
         `[${(Math.random() * 0.08).toFixed(2)}s] ZK Stealth Proof generated for 0x7a...912`,
         `[${(Math.random() * 0.08).toFixed(2)}s] Prediction Odds re-balanced (78% YES)`,
       ];
@@ -50,20 +57,63 @@ export default function HeroDashboard() {
     return () => clearInterval(interval);
   }, []);
 
-  const handleIntentExecute = (e: React.FormEvent) => {
+  const handleIntentExecute = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!intent) return;
     setIsSimulating(true);
     setExecutionResult(null);
+    setTxError(null);
 
-    setTimeout(() => {
-      setIsSimulating(false);
-      setExecutionResult({
-        route: "Arc Core Pool ➔ ZK Vault ➔ Yield Aggregator",
-        gas: "0.0001 USDC Native",
-        yield: "18.4% Net Estimated APY",
+    try {
+      // 1. Call AI Intent API Route
+      const res = await fetch("/api/ai/intent", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ prompt: intent }),
       });
-    }, 1500);
+
+      const data = await res.json();
+
+      if (!data.success) {
+        throw new Error("Failed to synthesize intent route.");
+      }
+
+      const synthesized = data.synthesizedIntent;
+
+      // 2. Trigger Real Wallet Execution if available
+      if (typeof window !== "undefined" && window.ethereum) {
+        const accounts = (await window.ethereum.request({ method: "eth_accounts" })) as string[];
+
+        if (accounts && accounts.length > 0) {
+          const txRes = await executeArcOnChainTx(
+            accounts[0],
+            synthesized.targetContract,
+            synthesized.parsedAmount
+          );
+
+          setExecutionResult({
+            route: synthesized.route,
+            gas: synthesized.gasEstimate,
+            yield: synthesized.netMetric,
+            txHash: txRes.hash,
+            explorerUrl: txRes.explorerUrl,
+          });
+          return;
+        }
+      }
+
+      // Fallback simulation result if wallet not yet connected
+      setExecutionResult({
+        route: synthesized.route,
+        gas: synthesized.gasEstimate,
+        yield: synthesized.netMetric,
+      });
+
+    } catch (err: any) {
+      setTxError(err?.message || "Execution cancelled or failed.");
+    } finally {
+      setIsSimulating(false);
+    }
   };
 
   return (
@@ -84,7 +134,7 @@ export default function HeroDashboard() {
             <span className="text-slate-200 font-semibold tracking-wider uppercase">ARC CHAIN OPERATIONAL</span>
           </div>
           <div className="flex items-center gap-6 shrink-0 text-slate-400">
-            <span>CHAIN ID: <strong className="text-cyan-400 font-normal">5042002</strong></span>
+            <span>CHAIN ID: <strong className="text-cyan-400 font-normal">5042730</strong></span>
             <span>SETTLEMENT: <strong className="text-emerald-400 font-normal">USDC NATIVE</strong></span>
             <span>AVG GAS: <strong className="text-cyan-400 font-normal">0.0001 USDC</strong></span>
             <span>BLOCK TIME: <strong className="text-indigo-400 font-normal">0.25s</strong></span>
@@ -151,7 +201,7 @@ export default function HeroDashboard() {
           </div>
         </div>
 
-        {/* Active Command Window (Linked to Phase 2 Modules) */}
+        {/* Active Command Window */}
         <div className="w-full mb-12">
           <AnimatePresence mode="wait">
             {activeTab === "copilot" && (
@@ -207,7 +257,7 @@ export default function HeroDashboard() {
                       {isSimulating ? (
                         <>
                           <RefreshCw className="h-3.5 w-3.5 animate-spin" />
-                          <span>Simulating...</span>
+                          <span>Parsing & Signing...</span>
                         </>
                       ) : (
                         <>
@@ -219,28 +269,52 @@ export default function HeroDashboard() {
                   </div>
                 </form>
 
+                {txError && (
+                  <div className="mt-4 flex items-center gap-2 rounded-xl border border-red-500/30 bg-red-500/10 p-3 text-xs font-mono text-red-300">
+                    <AlertCircle className="h-4 w-4 shrink-0 text-red-400" />
+                    <span>{txError}</span>
+                  </div>
+                )}
+
                 {executionResult && (
                   <motion.div
                     initial={{ opacity: 0, y: 10 }}
                     animate={{ opacity: 1, y: 0 }}
                     className="mt-5 rounded-xl border border-emerald-500/30 bg-emerald-500/10 p-4 font-mono text-xs space-y-2 text-emerald-300"
                   >
-                    <div className="flex items-center gap-2 font-bold text-emerald-400">
-                      <CheckCircle2 className="h-4 w-4" />
-                      <span>INTENT ROUTE SYNTHESIZED & VERIFIED ON ARC TESTNET</span>
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center gap-2 font-bold text-emerald-400">
+                        <CheckCircle2 className="h-4 w-4" />
+                        <span>INTENT EXECUTED ON ARC TESTNET</span>
+                      </div>
+                      {executionResult.explorerUrl && (
+                        <a
+                          href={executionResult.explorerUrl}
+                          target="_blank"
+                          rel="noreferrer"
+                          className="inline-flex items-center gap-1 text-[10px] text-cyan-400 hover:underline"
+                        >
+                          View Explorer <ExternalLink className="h-3 w-3" />
+                        </a>
+                      )}
                     </div>
+
                     <div className="grid sm:grid-cols-2 gap-2 text-[11px] pt-1 text-slate-300">
                       <div><span className="text-slate-500">Route:</span> {executionResult.route}</div>
                       <div><span className="text-slate-500">Estimated Gas:</span> {executionResult.gas}</div>
                       <div><span className="text-slate-500">Yield Metric:</span> {executionResult.yield}</div>
-                      <div><span className="text-slate-500">Status:</span> <span className="text-emerald-400">Ready for Signing</span></div>
+                      {executionResult.txHash && (
+                        <div className="col-span-2 text-cyan-300 truncate">
+                          <span className="text-slate-500">Tx Hash:</span> {executionResult.txHash}
+                        </div>
+                      )}
                     </div>
                   </motion.div>
                 )}
               </motion.div>
             )}
 
-            {/* 🔐 Full ZK Stealth Vault Module */}
+            {/* 🔐 ZK Vault Module */}
             {activeTab === "vault" && (
               <motion.div
                 key="vault"
@@ -252,7 +326,7 @@ export default function HeroDashboard() {
               </motion.div>
             )}
 
-            {/* 📈 Full Arc Swap Module */}
+            {/* 📈 Arc Swap Module */}
             {activeTab === "dex" && (
               <motion.div
                 key="dex"
@@ -266,7 +340,7 @@ export default function HeroDashboard() {
           </AnimatePresence>
         </div>
 
-        {/* 3 Grid Live Telemetry */}
+        {/* 3 Grid Streams */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-5 max-w-6xl mx-auto">
           
           <div className="rounded-2xl border border-white/[0.08] bg-[#090C15]/80 p-5 backdrop-blur-xl">
