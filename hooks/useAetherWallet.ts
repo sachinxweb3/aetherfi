@@ -61,12 +61,12 @@ export function useAetherWallet(): WalletState {
   if (balanceData?.value !== undefined) {
     const rawValue = balanceData.value
 
-    if (rawValue > 0n) {
+    if (rawValue > BigInt(0)) {
       const val18Str = formatUnits(rawValue, 18)
       const num18 = parseFloat(val18Str)
 
       // Auto-detect 6-decimal USDC base units vs 18-decimal EVM wei
-      if (num18 < 0.0001 && rawValue >= 1000n) {
+      if (num18 < 0.0001 && rawValue >= BigInt(1000)) {
         const val6Str = formatUnits(rawValue, 6)
         const num6 = parseFloat(val6Str)
         formattedBalance = !isNaN(num6) ? num6.toFixed(4) : "0.0000"
