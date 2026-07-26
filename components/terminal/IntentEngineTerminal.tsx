@@ -32,7 +32,7 @@ export function IntentEngineTerminal() {
       setRouteQuote(quote)
     } catch (err) {
       console.error("Intent parsing error:", err)
-    } fontically {
+    } finally {
       setIsProcessing(false)
     }
   }, [promptInput, publicClient, chainId])
