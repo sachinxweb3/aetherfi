@@ -2,9 +2,12 @@
 
 import * as React from "react"
 import { ConnectButton as RainbowConnectButton } from "@rainbow-me/rainbowkit"
+import { useAetherWallet } from "@/hooks/useAetherWallet"
 import { ShieldCheck, Wallet, ChevronDown, AlertTriangle } from "lucide-react"
 
 export function ConnectButton() {
+  const { formattedBalance, symbol } = useAetherWallet()
+
   return (
     <RainbowConnectButton.Custom>
       {({
@@ -61,9 +64,6 @@ export function ConnectButton() {
                 )
               }
 
-              const balanceNum = account.balanceFormatted ? parseFloat(account.balanceFormatted) : NaN
-              const formattedBalance = !isNaN(balanceNum) ? balanceNum.toFixed(4) : "0.0000"
-
               return (
                 <div className="flex items-center gap-2">
                   <button
@@ -93,7 +93,7 @@ export function ConnectButton() {
                   >
                     <ShieldCheck className="h-3.5 w-3.5 text-emerald-400 shrink-0" />
                     <span>
-                      {account.displayName} ({formattedBalance} {account.balanceSymbol || "USDC"})
+                      {account.displayName} ({formattedBalance} {symbol})
                     </span>
                   </button>
                 </div>

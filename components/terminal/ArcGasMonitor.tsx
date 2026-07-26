@@ -22,7 +22,7 @@ export function ArcGasMonitor() {
 
     try {
       const quote = await getArcGasPriceQuote(publicClient)
-      const bridge = await estimateLayerZeroRelayFee(publicClient, 1) // Ethereum Mainnet (Chain ID 1)
+      const bridge = await estimateLayerZeroRelayFee(publicClient, 1)
       setGasQuote(quote)
       setLzQuote(bridge)
     } catch (err) {
@@ -73,7 +73,7 @@ export function ArcGasMonitor() {
               <span className="font-mono text-sm font-bold text-foreground">
                 {isConnected ? chainName || `Chain ID ${chainId}` : "Not Connected"}
               </span>
-              {chainId === 5040 && (
+              {chainId === 5042002 && (
                 <span className="rounded bg-cyan-500/10 px-1.5 py-0.5 text-[10px] font-semibold text-cyan-400 border border-cyan-500/30">
                   Native Arc
                 </span>
