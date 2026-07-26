@@ -16,14 +16,27 @@ import {
   CheckCircle2,
   ExternalLink,
   AlertCircle,
+  Shield,
+  ShieldAlert,
+  Award,
+  Bot,
 } from "lucide-react";
 
 import ZkVaultModule from "@/components/modules/ZkVaultModule";
 import ArcSwapModule from "@/components/modules/ArcSwapModule";
+import PostQuantumModule from "@/components/modules/PostQuantumModule";
+import SelfHealingModule from "@/components/modules/SelfHealingModule";
+import ZkCreditScoringModule from "@/components/modules/ZkCreditScoringModule";
+import AiSwarmsModule from "@/components/modules/AiSwarmsModule";
+import SpatialTerminalModule from "@/components/modules/SpatialTerminalModule";
+import PredictionMarketModule from "@/components/modules/PredictionMarketModule";
 import { executeArcOnChainTx } from "@/lib/web3/contracts";
 
 export default function HeroDashboard() {
-  const [activeTab, setActiveTab] = useState<"copilot" | "vault" | "dex">("copilot");
+  const [activeTab, setActiveTab] = useState<
+    "copilot" | "swarms" | "terminal" | "prediction" | "vault" | "dex" | "quantum" | "circuit" | "credit"
+  >("copilot");
+
   const [intent, setIntent] = useState("Stake 1000 USDC in Arc Yield Vault at 18.4% APY");
   const [isSimulating, setIsSimulating] = useState(false);
   const [executionResult, setExecutionResult] = useState<null | {
@@ -65,7 +78,6 @@ export default function HeroDashboard() {
     setTxError(null);
 
     try {
-      // 1. Call AI Intent API Route
       const res = await fetch("/api/ai/intent", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -80,7 +92,6 @@ export default function HeroDashboard() {
 
       const synthesized = data.synthesizedIntent;
 
-      // 2. Trigger Real Wallet Execution if available
       if (typeof window !== "undefined" && window.ethereum) {
         const accounts = (await window.ethereum.request({ method: "eth_accounts" })) as string[];
 
@@ -102,7 +113,6 @@ export default function HeroDashboard() {
         }
       }
 
-      // Fallback simulation result if wallet not yet connected
       setExecutionResult({
         route: synthesized.route,
         gas: synthesized.gasEstimate,
@@ -160,12 +170,12 @@ export default function HeroDashboard() {
           </p>
         </div>
 
-        {/* Navigation Dock */}
+        {/* Complete Command Navigation Dock */}
         <div className="mb-8 flex justify-center">
-          <div className="inline-flex items-center gap-1.5 rounded-2xl border border-white/[0.08] bg-[#080B12] p-1.5 backdrop-blur-2xl">
+          <div className="inline-flex flex-wrap items-center justify-center gap-1.5 rounded-2xl border border-white/[0.08] bg-[#080B12] p-1.5 backdrop-blur-2xl">
             <button
               onClick={() => setActiveTab("copilot")}
-              className={`flex items-center gap-2 rounded-xl px-4 py-2 text-xs font-medium transition-all ${
+              className={`flex items-center gap-1.5 rounded-xl px-3.5 py-2 text-xs font-medium transition-all ${
                 activeTab === "copilot"
                   ? "bg-gradient-to-r from-cyan-500 to-blue-600 text-white shadow-lg shadow-cyan-500/20"
                   : "text-slate-400 hover:text-white"
@@ -176,27 +186,99 @@ export default function HeroDashboard() {
             </button>
 
             <button
+              onClick={() => setActiveTab("swarms")}
+              className={`flex items-center gap-1.5 rounded-xl px-3.5 py-2 text-xs font-medium transition-all ${
+                activeTab === "swarms"
+                  ? "bg-gradient-to-r from-cyan-400 to-teal-500 text-slate-950 font-bold shadow-lg shadow-cyan-400/20"
+                  : "text-slate-400 hover:text-white"
+              }`}
+            >
+              <Bot className="h-3.5 w-3.5" />
+              <span>AI Swarms</span>
+            </button>
+
+            <button
+              onClick={() => setActiveTab("terminal")}
+              className={`flex items-center gap-1.5 rounded-xl px-3.5 py-2 text-xs font-medium transition-all ${
+                activeTab === "terminal"
+                  ? "bg-gradient-to-r from-emerald-500 to-teal-600 text-white shadow-lg shadow-emerald-500/20"
+                  : "text-slate-400 hover:text-white"
+              }`}
+            >
+              <TrendingUp className="h-3.5 w-3.5" />
+              <span>Trading Terminal</span>
+            </button>
+
+            <button
+              onClick={() => setActiveTab("prediction")}
+              className={`flex items-center gap-1.5 rounded-xl px-3.5 py-2 text-xs font-medium transition-all ${
+                activeTab === "prediction"
+                  ? "bg-gradient-to-r from-indigo-500 to-purple-600 text-white shadow-lg shadow-indigo-500/20"
+                  : "text-slate-400 hover:text-white"
+              }`}
+            >
+              <Activity className="h-3.5 w-3.5" />
+              <span>Prediction Market</span>
+            </button>
+
+            <button
               onClick={() => setActiveTab("vault")}
-              className={`flex items-center gap-2 rounded-xl px-4 py-2 text-xs font-medium transition-all ${
+              className={`flex items-center gap-1.5 rounded-xl px-3.5 py-2 text-xs font-medium transition-all ${
                 activeTab === "vault"
                   ? "bg-gradient-to-r from-indigo-500 to-purple-600 text-white shadow-lg shadow-indigo-500/20"
                   : "text-slate-400 hover:text-white"
               }`}
             >
               <ShieldCheck className="h-3.5 w-3.5" />
-              <span>ZK-Vault Shield</span>
+              <span>ZK Vault</span>
             </button>
 
             <button
               onClick={() => setActiveTab("dex")}
-              className={`flex items-center gap-2 rounded-xl px-4 py-2 text-xs font-medium transition-all ${
+              className={`flex items-center gap-1.5 rounded-xl px-3.5 py-2 text-xs font-medium transition-all ${
                 activeTab === "dex"
                   ? "bg-gradient-to-r from-emerald-500 to-teal-600 text-white shadow-lg shadow-emerald-500/20"
                   : "text-slate-400 hover:text-white"
               }`}
             >
-              <TrendingUp className="h-3.5 w-3.5" />
-              <span>Arc FX Swap</span>
+              <Zap className="h-3.5 w-3.5" />
+              <span>Arc Swap</span>
+            </button>
+
+            <button
+              onClick={() => setActiveTab("quantum")}
+              className={`flex items-center gap-1.5 rounded-xl px-3.5 py-2 text-xs font-medium transition-all ${
+                activeTab === "quantum"
+                  ? "bg-gradient-to-r from-purple-500 to-pink-600 text-white shadow-lg shadow-purple-500/20"
+                  : "text-slate-400 hover:text-white"
+              }`}
+            >
+              <Shield className="h-3.5 w-3.5" />
+              <span>Post-Quantum</span>
+            </button>
+
+            <button
+              onClick={() => setActiveTab("circuit")}
+              className={`flex items-center gap-1.5 rounded-xl px-3.5 py-2 text-xs font-medium transition-all ${
+                activeTab === "circuit"
+                  ? "bg-gradient-to-r from-red-500 to-amber-600 text-white shadow-lg shadow-red-500/20"
+                  : "text-slate-400 hover:text-white"
+              }`}
+            >
+              <ShieldAlert className="h-3.5 w-3.5" />
+              <span>Circuit Breaker</span>
+            </button>
+
+            <button
+              onClick={() => setActiveTab("credit")}
+              className={`flex items-center gap-1.5 rounded-xl px-3.5 py-2 text-xs font-medium transition-all ${
+                activeTab === "credit"
+                  ? "bg-gradient-to-r from-emerald-400 to-cyan-600 text-slate-950 font-bold shadow-lg shadow-emerald-400/20"
+                  : "text-slate-400 hover:text-white"
+              }`}
+            >
+              <Award className="h-3.5 w-3.5" />
+              <span>ZK Credit</span>
             </button>
           </div>
         </div>
@@ -314,6 +396,42 @@ export default function HeroDashboard() {
               </motion.div>
             )}
 
+            {/* 🤖 AI Swarms Module */}
+            {activeTab === "swarms" && (
+              <motion.div
+                key="swarms"
+                initial={{ opacity: 0, y: 10 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: -10 }}
+              >
+                <AiSwarmsModule />
+              </motion.div>
+            )}
+
+            {/* 📈 Trading Terminal Module */}
+            {activeTab === "terminal" && (
+              <motion.div
+                key="terminal"
+                initial={{ opacity: 0, y: 10 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: -10 }}
+              >
+                <SpatialTerminalModule />
+              </motion.div>
+            )}
+
+            {/* 🎯 Prediction Market Module */}
+            {activeTab === "prediction" && (
+              <motion.div
+                key="prediction"
+                initial={{ opacity: 0, y: 10 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: -10 }}
+              >
+                <PredictionMarketModule />
+              </motion.div>
+            )}
+
             {/* 🔐 ZK Vault Module */}
             {activeTab === "vault" && (
               <motion.div
@@ -335,6 +453,42 @@ export default function HeroDashboard() {
                 exit={{ opacity: 0, y: -10 }}
               >
                 <ArcSwapModule />
+              </motion.div>
+            )}
+
+            {/* 🛡️ Post-Quantum Lattice Module */}
+            {activeTab === "quantum" && (
+              <motion.div
+                key="quantum"
+                initial={{ opacity: 0, y: 10 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: -10 }}
+              >
+                <PostQuantumModule />
+              </motion.div>
+            )}
+
+            {/* 🚨 AI Circuit Breaker Module */}
+            {activeTab === "circuit" && (
+              <motion.div
+                key="circuit"
+                initial={{ opacity: 0, y: 10 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: -10 }}
+              >
+                <SelfHealingModule />
+              </motion.div>
+            )}
+
+            {/* 🎖️ ZK Credit Scoring Engine Module */}
+            {activeTab === "credit" && (
+              <motion.div
+                key="credit"
+                initial={{ opacity: 0, y: 10 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: -10 }}
+              >
+                <ZkCreditScoringModule />
               </motion.div>
             )}
           </AnimatePresence>
