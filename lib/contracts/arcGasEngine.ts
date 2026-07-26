@@ -17,7 +17,7 @@ export interface LayerZeroBridgeQuote {
 
 export const ARC_GAS_ENGINE_ADDRESS =
   (process.env.NEXT_PUBLIC_ARC_GAS_ENGINE_ADDRESS as `0x${string}`) ||
-  "0x5040000000000000000000000000000000000001"
+  "0x5042002000000000000000000000000000000001"
 
 export async function getArcGasPriceQuote(
   publicClient: PublicClient
@@ -26,21 +26,19 @@ export async function getArcGasPriceQuote(
     const gasPrice = await publicClient.getGasPrice()
     const gasPriceGwei = formatUnits(gasPrice, 9)
 
-    // Standard transfer cost calculation (21,000 gas units)
     const standardGasLimit = BigInt(21000)
     const totalFeeWei = gasPrice * standardGasLimit
 
-    // Arc Chain native currency decimals (18)
-    const usdcGasFeeFormatted = formatUnits(
-      totalFeeWei,
-      arcTestnet.nativeCurrency.decimals
-    )
+    const isArcChain = publicClient.chain?.id === arcTestnet.id
+    const decimals = isArcChain ? 6 : 18
+
+    const usdcGasFeeFormatted = formatUnits(totalFeeWei, decimals)
 
     return {
       gasPriceGwei: Number(gasPriceGwei).toFixed(4),
       usdcGasFeeFormatted: Number(usdcGasFeeFormatted).toFixed(6),
       rawGasPriceWei: gasPrice,
-      isNativeUsdcGas: publicClient.chain?.id === arcTestnet.id,
+      isNativeUsdcGas: isArcChain,
     }
   } catch (error) {
     console.error("Error querying Arc Gas Price from RPC:", error)
@@ -54,11 +52,13 @@ export async function estimateLayerZeroRelayFee(
 ): Promise<LayerZeroBridgeQuote> {
   try {
     const gasPrice = await publicClient.getGasPrice()
-    // Standard LayerZero cross-chain payload gas overhead estimate (150,000 gas units)
     const crossChainGasLimit = BigInt(150000)
     const totalBridgeFeeWei = gasPrice * crossChainGasLimit
 
-    const feeFormatted = formatUnits(totalBridgeFeeWei, 18)
+    const isArcChain = publicClient.chain?.id === arcTestnet.id
+    const decimals = isArcChain ? 6 : 18
+
+    const feeFormatted = formatUnits(totalBridgeFeeWei, decimals)
 
     return {
       destinationChainId,

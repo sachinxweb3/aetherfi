@@ -26,6 +26,7 @@ export function useAetherWallet(): WalletState {
 
   const { data: balanceData } = useBalance({
     address,
+    chainId: chainId || arcTestnet.id,
     query: {
       enabled: Boolean(address),
     },

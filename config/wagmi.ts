@@ -8,7 +8,7 @@ export const arcTestnet: Chain = {
   nativeCurrency: {
     name: "USDC",
     symbol: "USDC",
-    decimals: 18,
+    decimals: 6, // Arc Chain native USDC gas uses 6 decimals (not 18)
   },
   rpcUrls: {
     default: {
