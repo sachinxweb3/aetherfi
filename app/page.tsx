@@ -4,6 +4,7 @@ import { CrossChainRelay } from "@/components/terminal/CrossChainRelay"
 import { StealthPrivacyTerminal } from "@/components/terminal/StealthPrivacyTerminal"
 import { IntentEngineTerminal } from "@/components/terminal/IntentEngineTerminal"
 import { DePinNodeTerminal } from "@/components/terminal/DePinNodeTerminal"
+import { AetherWorkflowCanvas } from "@/components/workflow/AetherWorkflowCanvas"
 
 export default function Home() {
   return (
@@ -23,6 +24,7 @@ export default function Home() {
         </div>
 
         <section id="terminal" className="w-full space-y-6">
+          <AetherWorkflowCanvas />
           <IntentEngineTerminal />
           <ArcGasMonitor />
           <CrossChainRelay />
