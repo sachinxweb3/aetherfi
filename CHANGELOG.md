@@ -43,4 +43,25 @@ Reason:
 Establish real zero-mock Web3 provider layer and wallet connection lifecycle.
 
 Impact:
-Application now supports real multi-chain wallet connections (Ethereum, Arbitrum, Sepolia, Arc Chain Testnet), network switching, and live balance reading via RainbowKit, Wagmi v2, and Viem v2.
+Application supports real multi-chain wallet connections (Ethereum, Arbitrum, Sepolia, Arc Chain Testnet), network switching, and live balance reading via RainbowKit, Wagmi v2, and Viem v2.
+
+---
+
+## 2026-07-26
+
+Implemented Milestone 2: Arc Chain Native USDC Gas Engine & LayerZero Cross-Chain Router.
+
+Files:
+- lib/contracts/abi/arcGasEngineAbi.ts
+- lib/contracts/abi/layerZeroEndpointAbi.ts
+- lib/contracts/arcGasEngine.ts
+- lib/contracts/layerZeroRouter.ts
+- components/terminal/ArcGasMonitor.tsx
+- components/terminal/CrossChainRelay.tsx
+- app/page.tsx
+
+Reason:
+Provide real-time RPC gas parameters, zero-slippage USDC native gas calculations, and LayerZero cross-chain payload relay estimation.
+
+Impact:
+Terminal displays live network gas rates ($USDC execution fees) and provides a cross-chain messaging route interface between Arc Chain, Ethereum, Arbitrum, and Sepolia.
