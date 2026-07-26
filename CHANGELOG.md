@@ -83,3 +83,21 @@ Implement EIP-5564 stealth payment address derivation and zero-knowledge client-
 
 Impact:
 Users can derive stealth payment targets, view viewing/spending key structures, and encrypt/decrypt confidential execution logs client-side.
+
+---
+
+## 2026-07-26
+
+Completed Milestone 4: Hybrid DeFi Terminal, Intent Engine & Smart Contract Execution.
+
+Files:
+- lib/ai/intentParser.ts
+- lib/contracts/defiRouter.ts
+- components/terminal/IntentEngineTerminal.tsx
+- app/page.tsx
+
+Reason:
+Implement deterministic natural language financial intent parsing and automated smart contract route quote computation.
+
+Impact:
+Users can enter natural language trading prompts, inspect parsed parameters, view minimum received output quotes, and dispatch smart contract transactions.
