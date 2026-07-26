@@ -22,6 +22,9 @@ import {
   Bot,
   Server,
   BarChart2,
+  Building2,
+  BookOpen,
+  DollarSign,
 } from "lucide-react";
 
 import ZkVaultModule from "@/components/modules/ZkVaultModule";
@@ -35,11 +38,15 @@ import PredictionMarketModule from "@/components/modules/PredictionMarketModule"
 import DepinStakingModule from "@/components/modules/DepinStakingModule";
 import FinancialTimeMachineModule from "@/components/modules/FinancialTimeMachineModule";
 import MicroInsuranceModule from "@/components/modules/MicroInsuranceModule";
+import SpatialNftMarketplaceModule from "@/components/modules/SpatialNftMarketplaceModule";
+import RwaVaultsModule from "@/components/modules/RwaVaultsModule";
+import DocsPortalModule from "@/components/modules/DocsPortalModule";
+import VcPitchDeckModule from "@/components/modules/VcPitchDeckModule";
 import { executeArcOnChainTx } from "@/lib/web3/contracts";
 
 export default function HeroDashboard() {
   const [activeTab, setActiveTab] = useState<
-    "copilot" | "swarms" | "depin" | "timemachine" | "insurance" | "terminal" | "prediction" | "vault" | "dex" | "quantum" | "circuit" | "credit"
+    "copilot" | "swarms" | "docs" | "vcpitch" | "spatialnft" | "rwa" | "depin" | "timemachine" | "insurance" | "terminal" | "prediction" | "vault" | "dex" | "quantum" | "circuit" | "credit"
   >("copilot");
 
   const [intent, setIntent] = useState("Stake 1000 USDC in Arc Yield Vault at 18.4% APY");
@@ -175,7 +182,7 @@ export default function HeroDashboard() {
           </p>
         </div>
 
-        {/* Master Command Dock - All Phases */}
+        {/* Master Command Navigation Dock - Complete Enterprise Hub */}
         <div className="mb-8 flex justify-center">
           <div className="inline-flex flex-wrap items-center justify-center gap-1.5 rounded-2xl border border-white/[0.08] bg-[#080B12] p-1.5 backdrop-blur-2xl max-w-5xl">
             <button
@@ -191,6 +198,30 @@ export default function HeroDashboard() {
             </button>
 
             <button
+              onClick={() => setActiveTab("docs")}
+              className={`flex items-center gap-1.5 rounded-xl px-3 py-1.5 text-xs font-medium transition-all ${
+                activeTab === "docs"
+                  ? "bg-gradient-to-r from-cyan-400 to-blue-500 text-slate-950 font-bold shadow-lg shadow-cyan-400/20"
+                  : "text-slate-400 hover:text-white"
+              }`}
+            >
+              <BookOpen className="h-3.5 w-3.5" />
+              <span>Docs & SDK</span>
+            </button>
+
+            <button
+              onClick={() => setActiveTab("vcpitch")}
+              className={`flex items-center gap-1.5 rounded-xl px-3 py-1.5 text-xs font-medium transition-all ${
+                activeTab === "vcpitch"
+                  ? "bg-gradient-to-r from-indigo-500 to-purple-600 text-white font-bold shadow-lg shadow-indigo-500/20"
+                  : "text-slate-400 hover:text-white"
+              }`}
+            >
+              <DollarSign className="h-3.5 w-3.5" />
+              <span>VC Pitch Deck</span>
+            </button>
+
+            <button
               onClick={() => setActiveTab("swarms")}
               className={`flex items-center gap-1.5 rounded-xl px-3 py-1.5 text-xs font-medium transition-all ${
                 activeTab === "swarms"
@@ -203,6 +234,30 @@ export default function HeroDashboard() {
             </button>
 
             <button
+              onClick={() => setActiveTab("spatialnft")}
+              className={`flex items-center gap-1.5 rounded-xl px-3 py-1.5 text-xs font-medium transition-all ${
+                activeTab === "spatialnft"
+                  ? "bg-gradient-to-r from-purple-500 to-pink-500 text-white font-bold shadow-lg shadow-purple-500/20"
+                  : "text-slate-400 hover:text-white"
+              }`}
+            >
+              <Sparkles className="h-3.5 w-3.5" />
+              <span>Spatial NFT</span>
+            </button>
+
+            <button
+              onClick={() => setActiveTab("rwa")}
+              className={`flex items-center gap-1.5 rounded-xl px-3 py-1.5 text-xs font-medium transition-all ${
+                activeTab === "rwa"
+                  ? "bg-gradient-to-r from-emerald-400 to-teal-500 text-slate-950 font-bold shadow-lg shadow-emerald-400/20"
+                  : "text-slate-400 hover:text-white"
+              }`}
+            >
+              <Building2 className="h-3.5 w-3.5" />
+              <span>RWA Vaults</span>
+            </button>
+
+            <button
               onClick={() => setActiveTab("depin")}
               className={`flex items-center gap-1.5 rounded-xl px-3 py-1.5 text-xs font-medium transition-all ${
                 activeTab === "depin"
@@ -211,7 +266,7 @@ export default function HeroDashboard() {
               }`}
             >
               <Server className="h-3.5 w-3.5" />
-              <span>DePIN GPU Vault</span>
+              <span>DePIN GPU</span>
             </button>
 
             <button
@@ -235,7 +290,7 @@ export default function HeroDashboard() {
               }`}
             >
               <ShieldCheck className="h-3.5 w-3.5" />
-              <span>Micro-Insurance</span>
+              <span>Insurance</span>
             </button>
 
             <button
@@ -247,7 +302,7 @@ export default function HeroDashboard() {
               }`}
             >
               <TrendingUp className="h-3.5 w-3.5" />
-              <span>Trading Terminal</span>
+              <span>Trading</span>
             </button>
 
             <button
@@ -259,7 +314,7 @@ export default function HeroDashboard() {
               }`}
             >
               <Activity className="h-3.5 w-3.5" />
-              <span>Prediction Market</span>
+              <span>Prediction</span>
             </button>
 
             <button
@@ -425,141 +480,114 @@ export default function HeroDashboard() {
               </motion.div>
             )}
 
+            {/* 📚 Docs Module */}
+            {activeTab === "docs" && (
+              <motion.div key="docs" initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -10 }}>
+                <DocsPortalModule />
+              </motion.div>
+            )}
+
+            {/* 📊 VC Pitch Deck Module */}
+            {activeTab === "vcpitch" && (
+              <motion.div key="vcpitch" initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -10 }}>
+                <VcPitchDeckModule />
+              </motion.div>
+            )}
+
             {/* 🤖 AI Swarms Module */}
             {activeTab === "swarms" && (
-              <motion.div
-                key="swarms"
-                initial={{ opacity: 0, y: 10 }}
-                animate={{ opacity: 1, y: 0 }}
-                exit={{ opacity: 0, y: -10 }}
-              >
+              <motion.div key="swarms" initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -10 }}>
                 <AiSwarmsModule />
+              </motion.div>
+            )}
+
+            {/* 🌌 Spatial NFT Module */}
+            {activeTab === "spatialnft" && (
+              <motion.div key="spatialnft" initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -10 }}>
+                <SpatialNftMarketplaceModule />
+              </motion.div>
+            )}
+
+            {/* 🏢 RWA Vaults Module */}
+            {activeTab === "rwa" && (
+              <motion.div key="rwa" initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -10 }}>
+                <RwaVaultsModule />
               </motion.div>
             )}
 
             {/* 🖥️ DePIN GPU Staking Module */}
             {activeTab === "depin" && (
-              <motion.div
-                key="depin"
-                initial={{ opacity: 0, y: 10 }}
-                animate={{ opacity: 1, y: 0 }}
-                exit={{ opacity: 0, y: -10 }}
-              >
+              <motion.div key="depin" initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -10 }}>
                 <DepinStakingModule />
               </motion.div>
             )}
 
             {/* ⏳ Financial Time Machine Module */}
             {activeTab === "timemachine" && (
-              <motion.div
-                key="timemachine"
-                initial={{ opacity: 0, y: 10 }}
-                animate={{ opacity: 1, y: 0 }}
-                exit={{ opacity: 0, y: -10 }}
-              >
+              <motion.div key="timemachine" initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -10 }}>
                 <FinancialTimeMachineModule />
               </motion.div>
             )}
 
             {/* 🛡️ Micro-Insurance Module */}
             {activeTab === "insurance" && (
-              <motion.div
-                key="insurance"
-                initial={{ opacity: 0, y: 10 }}
-                animate={{ opacity: 1, y: 0 }}
-                exit={{ opacity: 0, y: -10 }}
-              >
+              <motion.div key="insurance" initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -10 }}>
                 <MicroInsuranceModule />
               </motion.div>
             )}
 
             {/* 📈 Trading Terminal Module */}
             {activeTab === "terminal" && (
-              <motion.div
-                key="terminal"
-                initial={{ opacity: 0, y: 10 }}
-                animate={{ opacity: 1, y: 0 }}
-                exit={{ opacity: 0, y: -10 }}
-              >
+              <motion.div key="terminal" initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -10 }}>
                 <SpatialTerminalModule />
               </motion.div>
             )}
 
             {/* 🎯 Prediction Market Module */}
             {activeTab === "prediction" && (
-              <motion.div
-                key="prediction"
-                initial={{ opacity: 0, y: 10 }}
-                animate={{ opacity: 1, y: 0 }}
-                exit={{ opacity: 0, y: -10 }}
-              >
+              <motion.div key="prediction" initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -10 }}>
                 <PredictionMarketModule />
               </motion.div>
             )}
 
             {/* 🔐 ZK Vault Module */}
             {activeTab === "vault" && (
-              <motion.div
-                key="vault"
-                initial={{ opacity: 0, y: 10 }}
-                animate={{ opacity: 1, y: 0 }}
-                exit={{ opacity: 0, y: -10 }}
-              >
+              <motion.div key="vault" initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -10 }}>
                 <ZkVaultModule />
               </motion.div>
             )}
 
             {/* 📈 Arc Swap Module */}
             {activeTab === "dex" && (
-              <motion.div
-                key="dex"
-                initial={{ opacity: 0, y: 10 }}
-                animate={{ opacity: 1, y: 0 }}
-                exit={{ opacity: 0, y: -10 }}
-              >
+              <motion.div key="dex" initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -10 }}>
                 <ArcSwapModule />
               </motion.div>
             )}
 
             {/* 🛡️ Post-Quantum Lattice Module */}
             {activeTab === "quantum" && (
-              <motion.div
-                key="quantum"
-                initial={{ opacity: 0, y: 10 }}
-                animate={{ opacity: 1, y: 0 }}
-                exit={{ opacity: 0, y: -10 }}
-              >
+              <motion.div key="quantum" initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -10 }}>
                 <PostQuantumModule />
               </motion.div>
             )}
 
             {/* 🚨 AI Circuit Breaker Module */}
             {activeTab === "circuit" && (
-              <motion.div
-                key="circuit"
-                initial={{ opacity: 0, y: 10 }}
-                animate={{ opacity: 1, y: 0 }}
-                exit={{ opacity: 0, y: -10 }}
-              >
+              <motion.div key="circuit" initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -10 }}>
                 <SelfHealingModule />
               </motion.div>
             )}
 
             {/* 🎖️ ZK Credit Scoring Engine Module */}
             {activeTab === "credit" && (
-              <motion.div
-                key="credit"
-                initial={{ opacity: 0, y: 10 }}
-                animate={{ opacity: 1, y: 0 }}
-                exit={{ opacity: 0, y: -10 }}
-              >
+              <motion.div key="credit" initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -10 }}>
                 <ZkCreditScoringModule />
               </motion.div>
             )}
           </AnimatePresence>
         </div>
 
-        {/* 3 Grid Telemetry Streams */}
+        {/* 3 Grid Streams */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-5 max-w-6xl mx-auto">
           
           <div className="rounded-2xl border border-white/[0.08] bg-[#090C15]/80 p-5 backdrop-blur-xl">
