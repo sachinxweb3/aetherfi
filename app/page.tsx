@@ -3,6 +3,7 @@ import { ArcGasMonitor } from "@/components/terminal/ArcGasMonitor"
 import { CrossChainRelay } from "@/components/terminal/CrossChainRelay"
 import { StealthPrivacyTerminal } from "@/components/terminal/StealthPrivacyTerminal"
 import { IntentEngineTerminal } from "@/components/terminal/IntentEngineTerminal"
+import { DePinNodeTerminal } from "@/components/terminal/DePinNodeTerminal"
 
 export default function Home() {
   return (
@@ -26,6 +27,7 @@ export default function Home() {
           <ArcGasMonitor />
           <CrossChainRelay />
           <StealthPrivacyTerminal />
+          <DePinNodeTerminal />
         </section>
       </main>
     </div>
