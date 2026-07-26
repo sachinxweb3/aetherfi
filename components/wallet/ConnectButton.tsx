@@ -2,12 +2,9 @@
 
 import * as React from "react"
 import { ConnectButton as RainbowConnectButton } from "@rainbow-me/rainbowkit"
-import { useAetherWallet } from "@/hooks/useAetherWallet"
-import { AlertTriangle, Wallet, ShieldCheck } from "lucide-react"
+import { ShieldCheck, Wallet, ChevronDown, AlertTriangle } from "lucide-react"
 
 export function ConnectButton() {
-  const { isWrongNetwork, switchNetwork } = useAetherWallet()
-
   return (
     <RainbowConnectButton.Custom>
       {({
@@ -16,10 +13,15 @@ export function ConnectButton() {
         openAccountModal,
         openChainModal,
         openConnectModal,
+        authenticationStatus,
         mounted,
       }) => {
-        const ready = mounted
-        const connected = ready && account && chain
+        const ready = mounted && authenticationStatus !== "loading"
+        const connected =
+          ready &&
+          account &&
+          chain &&
+          (!authenticationStatus || authenticationStatus === "authenticated")
 
         return (
           <div
@@ -38,7 +40,7 @@ export function ConnectButton() {
                   <button
                     onClick={openConnectModal}
                     type="button"
-                    className="inline-flex items-center justify-center gap-2 rounded-xl bg-primary px-5 py-2.5 text-sm font-semibold text-primary-foreground shadow-lg transition-all duration-300 hover:bg-primary/90 hover:shadow-primary/20 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+                    className="inline-flex items-center gap-2 rounded-xl bg-gradient-to-r from-cyan-500 to-indigo-600 px-4 py-2 text-xs font-bold text-white shadow-lg shadow-indigo-500/20 hover:opacity-95 transition-all"
                   >
                     <Wallet className="h-4 w-4" />
                     Connect Wallet
@@ -46,25 +48,28 @@ export function ConnectButton() {
                 )
               }
 
-              if (chain.unsupported || isWrongNetwork) {
+              if (chain.unsupported) {
                 return (
                   <button
-                    onClick={() => switchNetwork()}
+                    onClick={openChainModal}
                     type="button"
-                    className="inline-flex items-center justify-center gap-2 rounded-xl bg-destructive px-4 py-2 text-sm font-semibold text-destructive-foreground shadow-md transition-all hover:bg-destructive/90"
+                    className="inline-flex items-center gap-2 rounded-xl bg-destructive/10 border border-destructive/30 px-3.5 py-2 text-xs font-semibold text-destructive hover:bg-destructive/20 transition-all"
                   >
-                    <AlertTriangle className="h-4 w-4 animate-bounce" />
-                    Wrong Network (Switch to Arc)
+                    <AlertTriangle className="h-4 w-4 shrink-0" />
+                    Wrong Network
                   </button>
                 )
               }
+
+              const balanceNum = account.balanceFormatted ? parseFloat(account.balanceFormatted) : NaN
+              const formattedBalance = !isNaN(balanceNum) ? balanceNum.toFixed(4) : "0.0000"
 
               return (
                 <div className="flex items-center gap-2">
                   <button
                     onClick={openChainModal}
                     type="button"
-                    className="inline-flex items-center gap-1.5 rounded-lg border border-border/50 bg-background/60 px-3 py-1.5 text-xs font-medium text-foreground backdrop-blur-md transition-all hover:bg-accent"
+                    className="inline-flex items-center gap-1.5 rounded-xl border border-border/60 bg-background/60 px-3 py-2 text-xs font-semibold text-foreground hover:bg-accent transition-all"
                   >
                     {chain.hasIcon && (
                       <div className="h-3.5 w-3.5 overflow-hidden rounded-full">
@@ -77,17 +82,19 @@ export function ConnectButton() {
                         )}
                       </div>
                     )}
-                    {chain.name}
+                    <span>{chain.name}</span>
+                    <ChevronDown className="h-3 w-3 text-muted-foreground" />
                   </button>
 
                   <button
                     onClick={openAccountModal}
                     type="button"
-                    className="inline-flex items-center gap-2 rounded-lg border border-primary/30 bg-primary/10 px-3 py-1.5 text-xs font-semibold text-primary backdrop-blur-md transition-all hover:bg-primary/20"
+                    className="inline-flex items-center gap-2 rounded-xl border border-border/60 bg-background/60 px-3.5 py-2 text-xs font-semibold text-foreground hover:bg-accent transition-all font-mono"
                   >
-                    <ShieldCheck className="h-3.5 w-3.5 text-emerald-400" />
-                    {account.displayName}
-                    {account.displayBalance ? ` (${account.displayBalance})` : ""}
+                    <ShieldCheck className="h-3.5 w-3.5 text-emerald-400 shrink-0" />
+                    <span>
+                      {account.displayName} ({formattedBalance} {account.balanceSymbol || "USDC"})
+                    </span>
                   </button>
                 </div>
               )

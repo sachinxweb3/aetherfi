@@ -54,9 +54,18 @@ export function useAetherWallet(): WalletState {
     }
   }
 
-  const formattedBalance = balanceData
-    ? Number(formatUnits(balanceData.value, balanceData.decimals)).toFixed(4)
-    : "0.0000"
+  let formattedBalance = "0.0000"
+  if (balanceData?.value !== undefined && balanceData?.decimals !== undefined) {
+    try {
+      const formattedStr = formatUnits(balanceData.value, balanceData.decimals)
+      const parsedNum = parseFloat(formattedStr)
+      if (!isNaN(parsedNum)) {
+        formattedBalance = parsedNum.toFixed(4)
+      }
+    } catch {
+      formattedBalance = "0.0000"
+    }
+  }
 
   return {
     address,
@@ -67,7 +76,7 @@ export function useAetherWallet(): WalletState {
     chainName: chain?.name,
     isWrongNetwork,
     formattedBalance,
-    symbol: balanceData?.symbol || "ETH",
+    symbol: balanceData?.symbol || "USDC",
     switchNetwork,
     estimateGasPrice,
   }
