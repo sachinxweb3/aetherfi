@@ -13,13 +13,13 @@ export default function Header() {
       <div className="mx-auto flex max-w-7xl items-center justify-between px-6 py-4">
         {/* Brand Logo & Founder Signature */}
         <div className="flex items-center gap-6">
-          <Link href="/" className="flex items-center gap-3 group">
-            <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-gradient-to-tr from-violet-600 via-indigo-500 to-cyan-400 p-[1px] shadow-lg shadow-indigo-500/20 group-hover:scale-105 transition-transform">
-              <div className="flex h-full w-full items-center justify-center rounded-[11px] bg-slate-950">
-                <Zap className="h-5 w-5 text-cyan-400 fill-cyan-400/20" />
+          <div className="flex items-center gap-3">
+            <Link href="/" className="flex items-center gap-3 group">
+              <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-gradient-to-tr from-violet-600 via-indigo-500 to-cyan-400 p-[1px] shadow-lg shadow-indigo-500/20 group-hover:scale-105 transition-transform">
+                <div className="flex h-full w-full items-center justify-center rounded-[11px] bg-slate-950">
+                  <Zap className="h-5 w-5 text-cyan-400 fill-cyan-400/20" />
+                </div>
               </div>
-            </div>
-            <div>
               <div className="flex items-center gap-2">
                 <span className="text-xl font-bold tracking-wider text-white">
                   AETHER<span className="text-cyan-400">FI</span>
@@ -28,19 +28,20 @@ export default function Header() {
                   ARC TESTNET
                 </span>
               </div>
-              <p className="text-[11px] text-slate-400">
-                Made by{" "}
-                <a
-                  href="https://linktr.ee/sachinxweb3"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="font-medium text-cyan-400 underline decoration-cyan-500/40 hover:text-cyan-300"
-                >
-                  Sachin
-                </a>
-              </p>
-            </div>
-          </Link>
+            </Link>
+
+            <span className="text-[11px] text-slate-400 border-l border-white/10 pl-3">
+              Made by{" "}
+              <a
+                href="https://linktr.ee/sachinxweb3"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="font-medium text-cyan-400 underline decoration-cyan-500/40 hover:text-cyan-300"
+              >
+                Sachin
+              </a>
+            </span>
+          </div>
         </div>
 
         {/* Navigation Ecosystem Links */}
