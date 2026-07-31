@@ -1,5 +1,5 @@
-import { http, createConfig } from "wagmi"
-import { mainnet, sepolia, arbitrum } from "wagmi/chains"
+import { http } from "wagmi"
+import { getDefaultConfig } from "@rainbow-me/rainbowkit"
 import { type Chain } from "viem"
 
 export const arcTestnet: Chain = {
@@ -27,12 +27,17 @@ export const arcTestnet: Chain = {
   testnet: true,
 }
 
-export const config = createConfig({
-  chains: [arcTestnet, mainnet, arbitrum, sepolia],
+// Free WalletConnect Project ID enables mobile wallets (MetaMask mobile, Rabby,
+// Trust, etc.). Get one at https://cloud.walletconnect.com. Desktop injected
+// wallets work regardless.
+const wcProjectId = process.env.NEXT_PUBLIC_WC_PROJECT_ID || "demo"
+
+export const config = getDefaultConfig({
+  appName: "AetherFi — Arc Wallet Kundli",
+  projectId: wcProjectId,
+  chains: [arcTestnet],
   transports: {
     [arcTestnet.id]: http(),
-    [mainnet.id]: http(),
-    [arbitrum.id]: http(),
-    [sepolia.id]: http(),
   },
+  ssr: true,
 })

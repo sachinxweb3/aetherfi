@@ -3,6 +3,9 @@
 import * as React from "react"
 import { motion, useMotionValue, useTransform, animate } from "framer-motion"
 import type { WalletKundli } from "@/lib/arc"
+import { auraParams } from "@/lib/aura"
+import { AuraCanvas } from "@/components/AuraCanvas"
+import { Reveal, Tilt } from "@/components/Motion"
 
 /* ---------- Count-up number ---------- */
 function CountUp({ value, decimals = 0, suffix = "" }: { value: number; decimals?: number; suffix?: string }) {
@@ -77,39 +80,88 @@ function Stat({
   delay: number
 }) {
   return (
-    <motion.div
-      className="glass p-5"
-      initial={{ opacity: 0, y: 20 }}
-      animate={{ opacity: 1, y: 0 }}
-      transition={{ delay, duration: 0.5 }}
-    >
-      <div className="text-xs uppercase tracking-wider text-muted">{label}</div>
-      <div className="mt-2 text-2xl font-bold">
-        <CountUp value={value} decimals={decimals} suffix={suffix} />
-      </div>
-    </motion.div>
+    <Tilt>
+      <motion.div
+        className="glass holo p-5"
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ delay, duration: 0.5 }}
+      >
+        <div className="text-xs uppercase tracking-wider text-muted">{label}</div>
+        <div className="mt-2 text-2xl font-bold">
+          <CountUp value={value} decimals={decimals} suffix={suffix} />
+        </div>
+      </motion.div>
+    </Tilt>
   )
 }
 
-/* ---------- Activity bars ---------- */
+/* ---------- Activity waveform ---------- */
 function Activity({ data }: { data: WalletKundli["activityByDay"] }) {
   const max = Math.max(1, ...data.map((d) => d.count))
+  const W = 320
+  const H = 120
+  const step = W / Math.max(1, data.length - 1)
+  const pts = data.map((d, i) => [i * step, H - (d.count / max) * (H - 12) - 6] as const)
+
+  // smooth cubic path
+  const line = pts.reduce((acc, [x, y], i) => {
+    if (i === 0) return `M ${x} ${y}`
+    const [px, py] = pts[i - 1]
+    const cx = (px + x) / 2
+    return `${acc} C ${cx} ${py}, ${cx} ${y}, ${x} ${y}`
+  }, "")
+  const area = `${line} L ${W} ${H} L 0 ${H} Z`
+
   return (
     <div className="glass p-6">
-      <div className="mb-4 text-sm font-semibold text-muted">Activity — last 14 days</div>
-      <div className="flex h-32 items-end gap-1.5">
-        {data.map((d, i) => (
-          <motion.div
-            key={d.date}
-            className="flex-1 rounded-t bg-gradient-to-t from-primary/40 to-accent"
-            initial={{ height: 0 }}
-            animate={{ height: `${(d.count / max) * 100}%` }}
-            transition={{ delay: 0.5 + i * 0.04, duration: 0.5 }}
-            title={`${d.date}: ${d.count} tx`}
-            style={{ minHeight: 4 }}
-          />
-        ))}
+      <div className="mb-4 flex items-center justify-between">
+        <div className="text-sm font-semibold text-muted">Activity — last 14 days</div>
+        <div className="text-xs text-accent">{data.reduce((s, d) => s + d.count, 0)} tx</div>
       </div>
+      <svg viewBox={`0 0 ${W} ${H}`} className="h-32 w-full" preserveAspectRatio="none">
+        <defs>
+          <linearGradient id="wave" x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0%" stopColor="#22d3ee" stopOpacity="0.5" />
+            <stop offset="100%" stopColor="#7c5cff" stopOpacity="0" />
+          </linearGradient>
+          <linearGradient id="waveLine" x1="0" y1="0" x2="1" y2="0">
+            <stop offset="0%" stopColor="#7c5cff" />
+            <stop offset="100%" stopColor="#22d3ee" />
+          </linearGradient>
+        </defs>
+        <motion.path
+          d={area}
+          fill="url(#wave)"
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ delay: 0.6, duration: 0.8 }}
+        />
+        <motion.path
+          d={line}
+          fill="none"
+          stroke="url(#waveLine)"
+          strokeWidth="2.5"
+          strokeLinecap="round"
+          initial={{ pathLength: 0 }}
+          animate={{ pathLength: 1 }}
+          transition={{ delay: 0.4, duration: 1.4, ease: "easeInOut" }}
+        />
+        {pts.map(([x, y], i) => (
+          <motion.circle
+            key={i}
+            cx={x}
+            cy={y}
+            r="2.5"
+            fill="#22d3ee"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: data[i].count > 0 ? 1 : 0.15 }}
+            transition={{ delay: 0.8 + i * 0.03 }}
+          >
+            <title>{`${data[i].date}: ${data[i].count} tx`}</title>
+          </motion.circle>
+        ))}
+      </svg>
     </div>
   )
 }
@@ -123,7 +175,7 @@ function Badges({ badges }: { badges: WalletKundli["badges"] }) {
         {badges.map((b, i) => (
           <motion.div
             key={b.id}
-            className={`flex flex-col items-center rounded-xl border p-3 text-center transition ${
+            className={`holo flex flex-col items-center rounded-xl border p-3 text-center transition ${
               b.earned
                 ? "border-primary/40 bg-primary/10 btn-glow"
                 : "border-white/5 bg-white/[0.02] opacity-40 grayscale"
@@ -210,23 +262,30 @@ export function KundliDashboard({ data }: { data: WalletKundli }) {
   const short = `${data.address.slice(0, 6)}…${data.address.slice(-4)}`
 
   const shareText = encodeURIComponent(
-    `I just revealed my Arc Wallet Kundli on @arc testnet 🔮\n\n` +
+    `I just revealed my Arc Wallet Aura on @arc testnet 🔮\n\n` +
       `Rank: ${data.rank}\nScore: ${data.score}/1000\nTx: ${data.txCount}\n\n` +
-      `Check yours 👇`
+      `Reveal yours 👇`
   )
-  const shareUrl = "https://aetherfi.vercel.app"
+  const shareUrl = `https://aetherfi.vercel.app/w/${data.address}`
 
   return (
     <div className="space-y-6">
       {/* Hero */}
       <motion.div
-        className="glass grid grid-cols-1 items-center gap-6 p-8 md:grid-cols-[auto_1fr]"
+        className="glass relative grid grid-cols-1 items-center gap-6 overflow-hidden p-8 md:grid-cols-[auto_1fr]"
         initial={{ opacity: 0, scale: 0.96 }}
         animate={{ opacity: 1, scale: 1 }}
         transition={{ duration: 0.6 }}
       >
-        <ScoreRing score={data.score} rank={data.rank} />
-        <div className="space-y-3">
+        {/* personal aura living inside the hero card */}
+        <div className="pointer-events-none absolute inset-0 opacity-40">
+          <AuraCanvas address={data.address} params={auraParams(data)} className="h-full w-full" intense />
+          <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,transparent_30%,rgba(11,14,31,0.85)_100%)]" />
+        </div>
+        <div className="relative z-10">
+          <ScoreRing score={data.score} rank={data.rank} />
+        </div>
+        <div className="relative z-10 space-y-3">
           <div className="text-sm text-muted">Wallet</div>
           <div className="font-mono text-xl">{short}</div>
           <div className="flex flex-wrap gap-6 pt-2">
@@ -260,40 +319,50 @@ export function KundliDashboard({ data }: { data: WalletKundli }) {
         <Stat label="Score" value={data.score} suffix=" / 1000" delay={0.4} />
       </div>
 
-      <Personality data={data} />
+      <Reveal>
+        <Personality data={data} />
+      </Reveal>
 
       <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
-        <Activity data={data.activityByDay} />
-        <Badges badges={data.badges} />
+        <Reveal>
+          <Activity data={data.activityByDay} />
+        </Reveal>
+        <Reveal delay={120}>
+          <Badges badges={data.badges} />
+        </Reveal>
       </div>
 
       {/* Share */}
-      <motion.div
-        className="glass flex flex-col items-center gap-4 p-6 text-center"
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
-        transition={{ delay: 0.6 }}
-      >
-        <div className="text-sm text-muted">Share your Kundli and challenge your frens 🔥</div>
-        <div className="flex gap-3">
-          <a
-            href={`https://twitter.com/intent/tweet?text=${shareText}&url=${encodeURIComponent(shareUrl)}`}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="btn-glow rounded-full bg-gradient-to-r from-primary to-accent px-6 py-2.5 text-sm font-semibold text-white transition hover:opacity-90"
-          >
-            Share on X
-          </a>
-          <a
-            href={`https://testnet.arcscan.app/address/${data.address}`}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="rounded-full border border-white/10 px-6 py-2.5 text-sm font-semibold transition hover:border-primary/40"
-          >
-            View on ArcScan
-          </a>
-        </div>
-      </motion.div>
+      <Reveal delay={200}>
+        <motion.div
+          className="glass flex flex-col items-center gap-4 p-6 text-center"
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ delay: 0.6 }}
+        >
+          <div className="text-sm text-muted">Share your Aura and challenge your frens 🔥</div>
+          <div className="flex gap-3">
+            <a
+              data-magnetic
+              href={`https://twitter.com/intent/tweet?text=${shareText}&url=${encodeURIComponent(shareUrl)}`}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="btn-glow rounded-full bg-gradient-to-r from-primary to-accent px-6 py-2.5 text-sm font-semibold text-white transition hover:opacity-90"
+            >
+              Share on X
+            </a>
+            <a
+              data-magnetic
+              href={`https://testnet.arcscan.app/address/${data.address}`}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="rounded-full border border-white/10 px-6 py-2.5 text-sm font-semibold transition hover:border-primary/40"
+            >
+              View on ArcScan
+            </a>
+          </div>
+        </motion.div>
+      </Reveal>
     </div>
   )
 }

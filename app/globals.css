@@ -110,3 +110,104 @@ body {
   background: rgba(124, 92, 255, 0.4);
   border-radius: 8px;
 }
+
+/* ---------- Award-winning layer ---------- */
+
+/* Hide native cursor when custom cursor is active (fine pointers only) */
+@media (pointer: fine) {
+  body.cursor-none,
+  body.cursor-none * {
+    cursor: none !important;
+  }
+}
+
+/* Fullscreen WebGL aura mount */
+.aura-layer {
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+}
+.aura-layer canvas {
+  width: 100%;
+  height: 100%;
+}
+
+/* Gradient wordmark */
+.grad-text {
+  background: linear-gradient(90deg, #a78bfa, #22d3ee 60%, #7c5cff);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+
+/* Holographic sheen (badges/cards) */
+.holo {
+  position: relative;
+  overflow: hidden;
+}
+.holo::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(120deg, transparent 30%, rgba(255, 255, 255, 0.18) 50%, transparent 70%);
+  transform: translateX(-120%);
+  transition: transform 0.7s ease;
+}
+.holo:hover::after {
+  transform: translateX(120%);
+}
+
+/* 3D tilt card base */
+.tilt {
+  transform-style: preserve-3d;
+  transition: transform 0.15s ease-out;
+  will-change: transform;
+}
+
+/* Scroll reveal (set data-reveal, JS toggles .in) */
+.reveal {
+  opacity: 0;
+  transform: translateY(28px);
+  transition: opacity 0.7s cubic-bezier(0.22, 1, 0.36, 1), transform 0.7s cubic-bezier(0.22, 1, 0.36, 1);
+}
+.reveal.in {
+  opacity: 1;
+  transform: none;
+}
+
+/* Numbered index nav */
+.index-link {
+  position: relative;
+  letter-spacing: 0.02em;
+}
+.index-link .idx {
+  color: var(--accent);
+  font-variant-numeric: tabular-nums;
+  opacity: 0.7;
+  margin-right: 0.4em;
+  font-size: 0.75em;
+}
+
+/* Shimmer skeleton */
+.shimmer {
+  background: linear-gradient(90deg, rgba(255,255,255,0.04) 25%, rgba(255,255,255,0.1) 37%, rgba(255,255,255,0.04) 63%);
+  background-size: 400% 100%;
+  animation: shimmer 1.4s ease infinite;
+}
+@keyframes shimmer {
+  0% { background-position: 100% 0; }
+  100% { background-position: 0 0; }
+}
+
+/* Marquee for share strip */
+@keyframes floaty {
+  0%,100% { transform: translateY(0); }
+  50% { transform: translateY(-6px); }
+}
+.floaty { animation: floaty 4s ease-in-out infinite; }
+
+@media (prefers-reduced-motion: reduce) {
+  .reveal { opacity: 1; transform: none; }
+  .floaty { animation: none; }
+}
