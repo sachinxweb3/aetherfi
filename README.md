@@ -55,3 +55,4 @@ Deploys to Vercel out of the box. Add `OPENAI_API_KEY` in Vercel → Project →
 ---
 
 Built for the Arc community · Data via ArcScan · Not affiliated with Circle/Arc.
+# Trigger redeploy to pick up new env vars
