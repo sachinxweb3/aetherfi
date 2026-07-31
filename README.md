@@ -1,36 +1,57 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# 🔮 AetherFi — Your Arc Wallet Kundli
 
-## Getting Started
+Connect your wallet and instantly reveal your **on-chain identity** on the [Arc](https://arc.io) Testnet — activity score, rank, badges, an activity chart, and an **AI-powered wallet personality**.
 
-First, run the development server:
+**100% free. No signup. Read-only & safe.**
+
+![Arc Testnet](https://img.shields.io/badge/Arc-Testnet-7c5cff) ![Free](https://img.shields.io/badge/Free-forever-22d3ee)
+
+## ✨ Features
+
+- **Auto wallet connect** — MetaMask, Rabby, Coinbase, OKX & any EIP-6963 wallet
+- **Auto add / switch to Arc Testnet** — one approval, no manual RPC entry
+- **Activity Score (0–1000)** + rank & percentile
+- **Achievement badges** — Early Adopter, Gas Guzzler, USDC Whale & more
+- **14-day activity chart**
+- **🔮 AI Wallet Personality** — a witty on-chain roast (GPT-powered, with a free built-in fallback)
+- **Shareable card** → one-click "Share on X" viral loop
+
+## 🛠 Stack
+
+Next.js 16 · wagmi + viem · RainbowKit · Framer Motion · Tailwind CSS · Blockscout (ArcScan) API
+
+## 🔗 Arc Testnet
+
+| | |
+|---|---|
+| Chain ID | `5042002` |
+| RPC | `https://rpc.testnet.arc.network` |
+| Gas token | USDC |
+| Explorer | `https://testnet.arcscan.app` |
+| Faucet | `https://faucet.circle.com` |
+
+## 🚀 Local dev
 
 ```bash
+npm install
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Open http://localhost:3000
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+### AI personality (optional)
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+The AI roast works out of the box with a free local generator. To use real GPT output, add an OpenAI key:
 
-## Learn More
+```bash
+cp .env.example .env.local
+# then set OPENAI_API_KEY=sk-...
+```
 
-To learn more about Next.js, take a look at the following resources:
+## 📦 Deploy
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+Deploys to Vercel out of the box. Add `OPENAI_API_KEY` in Vercel → Project → Settings → Environment Variables to enable AI mode in production.
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+---
 
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+Built for the Arc community · Data via ArcScan · Not affiliated with Circle/Arc.
