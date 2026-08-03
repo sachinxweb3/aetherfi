@@ -92,7 +92,10 @@ export async function GET(req: Request) {
           }}
         >
           <div style={{ display: "flex", alignItems: "center", fontSize: 34, fontWeight: 700 }}>
-            <span style={{ color: "#d8c08a", marginRight: 12 }}>◆</span>
+            {/* Drawn diamond, not a glyph — U+25C6 needs a dynamic font satori
+                can't fetch offline, which rendered as tofu. A rotated square is
+                font-free and byte-identical every time. */}
+            <div style={{ display: "flex", width: 22, height: 22, background: "#d8c08a", transform: "rotate(45deg)", marginRight: 18 }} />
             <span style={{ color: "#f2efe6" }}>Aether</span>
             <span style={{ color: "#d8c08a" }}>FI</span>
             <span style={{ color: "#9a978d", marginLeft: 12 }}>Aura</span>
@@ -173,7 +176,7 @@ async function compareImage(a: string, b: string) {
               paddingTop: 36,
             }}
           >
-            <span style={{ color: "#d8c08a", marginRight: 12 }}>◆</span>
+            <div style={{ display: "flex", width: 20, height: 20, background: "#d8c08a", transform: "rotate(45deg)", marginRight: 18 }} />
             <span style={{ color: "#f2efe6" }}>Aether</span>
             <span style={{ color: "#d8c08a" }}>FI</span>
             <span style={{ color: "#9a978d", marginLeft: 12 }}>· Aura Battle</span>
@@ -235,7 +238,7 @@ function Side({ stats, bg, win }: { stats: Stats; bg: string; win: boolean }) {
     >
       {win && (
         <div style={{ display: "flex", fontSize: 22, fontWeight: 700, color: "#d8c08a" }}>
-          ♛ Winner
+          Winner
         </div>
       )}
       <div style={{ display: "flex", fontSize: 26, color: "#9a978d" }}>{stats.short}</div>
