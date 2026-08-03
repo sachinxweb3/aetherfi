@@ -24,6 +24,20 @@ export function resolveReducedMotion(pref: MotionPref, systemReduced: boolean): 
   return systemReduced
 }
 
+// Ambient sound is persisted as "1"/"0" (see SoundToggle, the header control
+// that owns the Web Audio pad). These helpers keep every surface that reads or
+// writes the preference in exact agreement — no separate, drifting definition.
+export const SOUND_ON = "1"
+export const SOUND_OFF = "0"
+
+export function isSoundOn(raw: string | null): boolean {
+  return raw === SOUND_ON
+}
+
+export function soundValue(on: boolean): string {
+  return on ? SOUND_ON : SOUND_OFF
+}
+
 // A single localStorage entry AETHER owns, described honestly for the Privacy
 // panel. `match` decides which live keys belong to this entry (some are
 // per-address or per-scope prefixes).

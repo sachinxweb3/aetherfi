@@ -5,7 +5,7 @@ import Link from "next/link"
 import { usePathname } from "next/navigation"
 import {
   LayoutDashboard, Sparkles, Wallet, Send, CalendarClock, Users, Repeat, Waypoints,
-  Activity, BarChart3, Bot, ShieldCheck, Code2, Settings, PanelLeft, X, ChevronLeft, Search,
+  Activity, BarChart3, Bot, ShieldCheck, Code2, Settings, PanelLeft, X, ChevronLeft, Search, Radio, GitCompareArrows,
 } from "lucide-react"
 import { ConnectButton } from "@rainbow-me/rainbowkit"
 import { cn } from "@/lib/utils"
@@ -28,6 +28,8 @@ const GROUPS: Group[] = [
       { href: "/dashboard", label: "Dashboard", icon: LayoutDashboard },
       { href: "/", label: "Your aura", icon: Sparkles },
       { href: "/analytics", label: "Understand", icon: BarChart3 },
+      { href: "/compare", label: "Compare", icon: GitCompareArrows },
+      { href: "/oracle", label: "Oracle", icon: Radio },
       { href: "/activity", label: "History", icon: Activity },
     ],
   },
@@ -38,8 +40,8 @@ const GROUPS: Group[] = [
       { href: "/transfer", label: "Send", icon: Send },
       { href: "/automation", label: "Automate", icon: CalendarClock },
       { href: "/contacts", label: "People", icon: Users },
-      { href: "/swap", label: "Swap", icon: Repeat, soon: true },
-      { href: "/bridge", label: "Bridge", icon: Waypoints, soon: true },
+      { href: "/swap", label: "Swap", icon: Repeat },
+      { href: "/bridge", label: "Bridge", icon: Waypoints },
     ],
   },
   {

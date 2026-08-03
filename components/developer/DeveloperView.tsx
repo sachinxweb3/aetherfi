@@ -9,7 +9,7 @@ import {
 import { useAccount } from "wagmi"
 import {
   API_ENDPOINTS, MCP_TOOLS, SAMPLE_ADDRESS,
-  endpointUrl, curlFor, mcpConfig, mcpCurl,
+  curlFor, mcpConfig, mcpCurl,
   type ApiEndpoint, type McpTool,
 } from "@/lib/developer"
 import { useReducedMotion } from "@/hooks/useReducedMotion"
@@ -137,7 +137,6 @@ function EndpointCard({
   ep: ApiEndpoint; origin: string; values: Record<string, string>
   copied: string; copy: (id: string, text: string) => void
 }) {
-  const url = endpointUrl(origin, ep, values)
   const curl = curlFor(origin, ep, values)
   return (
     <div className="rounded-2xl border border-white/10 bg-white/[0.02] p-4">
@@ -158,9 +157,9 @@ function EndpointCard({
       )}
       <button
         onClick={() => copy(ep.id, curl)}
-        className="mt-3 flex w-full items-center justify-between gap-3 rounded-xl border border-white/10 bg-black/30 px-3 py-2.5 text-left font-mono text-xs transition hover:border-primary/40"
+        className="mt-3 flex w-full items-start justify-between gap-3 rounded-xl border border-white/10 bg-black/30 px-3 py-2.5 text-left font-mono text-xs transition hover:border-primary/40"
       >
-        <span className="truncate">curl &quot;{url}&quot;</span>
+        <span className="min-w-0 flex-1 whitespace-pre-wrap break-all text-foreground/90">{curl}</span>
         <span className="inline-flex shrink-0 items-center gap-1 text-accent">
           {copied === ep.id ? <><Check className="h-3.5 w-3.5" aria-hidden="true" /> copied</> : <><Copy className="h-3.5 w-3.5" aria-hidden="true" /> copy</>}
         </span>

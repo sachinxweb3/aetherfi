@@ -73,6 +73,34 @@ export function fmtShare(share: number): string {
   return pct.toLocaleString("en-US", { maximumFractionDigits: 1 }) + "%"
 }
 
+// A compact, honest summary of a wallet's holdings — every field is derived
+// from REAL balances (Holding[]), never a fabricated USD value. `nativeShare`
+// is the native USDC slice of the total TOKEN AMOUNT (same convention as the
+// composition bar), so it's comparable to the allocation rows and never claims
+// a dollar figure Arc can't provide (File 16 honesty).
+export interface PortfolioSummary {
+  hasHoldings: boolean
+  assetCount: number // distinct assets actually held (amount > 0)
+  tokenCount: number // non-native assets held (ERC-20s)
+  nativeUSDC: number // spendable native balance
+  nativeShare: number // native amount / total token amount, 0..1
+}
+
+// Build the summary from real holdings. Pure and total: no holdings → all zero,
+// hasHoldings false. Reuses allocation() so shares stay consistent with the
+// composition view.
+export function portfolioSummary(holdings: Holding[]): PortfolioSummary {
+  const rows = allocation(holdings)
+  const native = rows.find((r) => r.isNative)
+  return {
+    hasHoldings: rows.length > 0,
+    assetCount: rows.length,
+    tokenCount: rows.filter((r) => !r.isNative).length,
+    nativeUSDC: native?.amount ?? 0,
+    nativeShare: native?.share ?? 0,
+  }
+}
+
 // A point-in-time snapshot of the native (spendable) USDC balance, persisted
 // per address so we can show a REAL change since the user last looked.
 export interface BalanceSnapshot {

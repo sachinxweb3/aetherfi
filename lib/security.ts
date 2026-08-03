@@ -40,10 +40,32 @@ export interface SecurityInput {
 
 const DAY = 86400000
 
-// Count recent transactions that call an approval method. We match the method
-// name only — we deliberately do NOT claim to know the allowance amount.
+// Method-name signature of an approval call. Matched on the method name ONLY —
+// we deliberately never claim to know the allowance amount from this view.
+const APPROVAL_RE = /approv/i
+
+function isApprovalTx(t: ArcTx): boolean {
+  return t.method != null && APPROVAL_RE.test(t.method)
+}
+
+// Count recent transactions that call an approval method.
 function approvalCount(txs: ArcTx[]): number {
-  return txs.filter((t) => t.method != null && /approv/i.test(t.method)).length
+  return txs.filter(isApprovalTx).length
+}
+
+// The actual approval transactions detected in the sample, so the user can find
+// and revoke them on the explorer. Returns the REAL tx records (never a
+// fabricated allowance) newest-first when timestamps are present, so the list
+// is directly actionable. Pure + deterministic.
+export function approvalActivity(txs: ArcTx[]): ArcTx[] {
+  return txs
+    .filter(isApprovalTx)
+    .slice()
+    .sort((a, b) => {
+      const ta = a.timestamp ? Date.parse(a.timestamp) : 0
+      const tb = b.timestamp ? Date.parse(b.timestamp) : 0
+      return tb - ta
+    })
 }
 
 // Share (0..1) of total outgoing value that went to the single largest

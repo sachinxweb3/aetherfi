@@ -5,15 +5,15 @@ import Link from "next/link"
 import { motion } from "framer-motion"
 import {
   Settings as SettingsIcon, Sparkles, Zap, MonitorSmartphone, Wallet,
-  ShieldCheck, Database, Trash2, ExternalLink, Check, LogOut,
+  ShieldCheck, Database, Trash2, ExternalLink, Check, LogOut, Volume2, VolumeX,
 } from "lucide-react"
 import { useAccount, useDisconnect, useChainId } from "wagmi"
 import { ConnectButton } from "@rainbow-me/rainbowkit"
 import { arcTestnet } from "@/config/wagmi"
 import { ARCSCAN_URL } from "@/lib/arc"
 import {
-  MOTION_KEY, PREFS_EVENT, isMotionPref, summarizeData, aetherKeys,
-  type MotionPref, type DataSummaryRow,
+  MOTION_KEY, SOUND_KEY, PREFS_EVENT, isMotionPref, isSoundOn, soundValue,
+  summarizeData, aetherKeys, type MotionPref, type DataSummaryRow,
 } from "@/lib/prefs"
 import { useReducedMotion } from "@/hooks/useReducedMotion"
 
@@ -36,6 +36,7 @@ export function SettingsView() {
   const reduced = useReducedMotion()
 
   const [motionPref, setMotionPref] = React.useState<MotionPref>("system")
+  const [soundOn, setSoundOn] = React.useState(false)
   const [dataRows, setDataRows] = React.useState<DataSummaryRow[]>([])
   const [cleared, setCleared] = React.useState(false)
 
@@ -51,14 +52,32 @@ export function SettingsView() {
     try {
       const stored = window.localStorage.getItem(MOTION_KEY)
       if (isMotionPref(stored)) setMotionPref(stored)
+      setSoundOn(isSoundOn(window.localStorage.getItem(SOUND_KEY)))
     } catch {}
     refreshData()
+    // Reflect changes made elsewhere (e.g. the header ambient toggle) live.
+    const sync = () => {
+      try {
+        setSoundOn(isSoundOn(window.localStorage.getItem(SOUND_KEY)))
+      } catch {}
+    }
+    window.addEventListener(PREFS_EVENT, sync)
+    return () => window.removeEventListener(PREFS_EVENT, sync)
   }, [refreshData])
 
   function chooseMotion(pref: MotionPref) {
     setMotionPref(pref)
     try {
       window.localStorage.setItem(MOTION_KEY, pref)
+      window.dispatchEvent(new Event(PREFS_EVENT))
+    } catch {}
+  }
+
+  function toggleSound() {
+    const next = !soundOn
+    setSoundOn(next)
+    try {
+      window.localStorage.setItem(SOUND_KEY, soundValue(next))
       window.dispatchEvent(new Event(PREFS_EVENT))
     } catch {}
   }
@@ -70,6 +89,7 @@ export function SettingsView() {
       window.dispatchEvent(new Event(PREFS_EVENT))
     } catch {}
     setMotionPref("system")
+    setSoundOn(false)
     setCleared(true)
     refreshData()
     setTimeout(() => setCleared(false), 2500)
@@ -153,6 +173,39 @@ export function SettingsView() {
               )
             })}
           </div>
+        </Field>
+
+        <Field label="Ambient sound" hint={`Currently ${soundOn ? "playing" : "off"}.`}>
+          <button
+            role="switch"
+            aria-checked={soundOn}
+            onClick={toggleSound}
+            className={
+              "flex w-full items-center justify-between gap-3 rounded-xl border p-3 text-left transition " +
+              (soundOn ? "border-primary/50 bg-primary/10" : "border-white/10 hover:border-white/25 hover:bg-white/[0.03]")
+            }
+          >
+            <span className="flex items-center gap-2 text-sm font-semibold">
+              {soundOn ? <Volume2 className="h-4 w-4 text-primary" aria-hidden="true" /> : <VolumeX className="h-4 w-4 text-muted" aria-hidden="true" />}
+              {soundOn ? "Ambient audio on" : "Ambient audio off"}
+            </span>
+            <span
+              className={
+                "relative h-5 w-9 shrink-0 rounded-full transition " +
+                (soundOn ? "bg-primary/70" : "bg-white/15")
+              }
+            >
+              <span
+                className={
+                  "absolute top-0.5 h-4 w-4 rounded-full bg-white transition-all " +
+                  (soundOn ? "left-[18px]" : "left-0.5")
+                }
+              />
+            </span>
+          </button>
+          <p className="text-xs text-muted">
+            A soft procedural drone generated in your browser — no audio files, nothing downloaded. Matches the ambient toggle in the header.
+          </p>
         </Field>
       </Section>
 

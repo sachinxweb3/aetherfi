@@ -1,7 +1,7 @@
 import { describe, it, expect } from "vitest"
 import {
   fmtAmount, tokenInitials, sortHoldings, assetCount,
-  allocation, topShare, fmtShare, balanceDelta,
+  allocation, topShare, fmtShare, balanceDelta, portfolioSummary,
 } from "../lib/portfolio"
 import type { Holding } from "../lib/arc"
 
@@ -104,5 +104,38 @@ describe("balanceDelta", () => {
     const d = balanceDelta({ nativeUSDC: 0, at: 0 }, 5, 10)
     expect(d?.delta).toBeCloseTo(5)
     expect(d?.pct).toBe(0)
+  })
+})
+
+describe("portfolioSummary", () => {
+  it("summarizes real holdings: counts, native amount, native share by token amount", () => {
+    const s = portfolioSummary([
+      mk({ symbol: "USDC", isNative: true, amount: 60, contract: null }),
+      mk({ symbol: "A", amount: 30 }),
+      mk({ symbol: "B", amount: 10 }),
+    ])
+    expect(s.hasHoldings).toBe(true)
+    expect(s.assetCount).toBe(3)
+    expect(s.tokenCount).toBe(2)
+    expect(s.nativeUSDC).toBe(60)
+    expect(s.nativeShare).toBeCloseTo(0.6)
+  })
+
+  it("excludes zero-amount holdings and reports an empty wallet honestly", () => {
+    const s = portfolioSummary([mk({ amount: 0 }), mk({ symbol: "Z", amount: 0 })])
+    expect(s.hasHoldings).toBe(false)
+    expect(s.assetCount).toBe(0)
+    expect(s.tokenCount).toBe(0)
+    expect(s.nativeUSDC).toBe(0)
+    expect(s.nativeShare).toBe(0)
+  })
+
+  it("handles a token-only wallet with no native balance (no fabricated native)", () => {
+    const s = portfolioSummary([mk({ symbol: "A", amount: 5 })])
+    expect(s.hasHoldings).toBe(true)
+    expect(s.assetCount).toBe(1)
+    expect(s.tokenCount).toBe(1)
+    expect(s.nativeUSDC).toBe(0)
+    expect(s.nativeShare).toBe(0)
   })
 })

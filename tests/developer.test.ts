@@ -1,7 +1,7 @@
 import { describe, it, expect } from "vitest"
 import {
   API_ENDPOINTS, MCP_TOOLS, SAMPLE_ADDRESS,
-  normalizeOrigin, endpointUrl, curlFor, mcpConfig, mcpCurl,
+  normalizeOrigin, endpointUrl, endpointBody, curlFor, mcpConfig, mcpCurl,
 } from "../lib/developer"
 
 // The developer catalog is the honest source of truth for AETHER's public API +
@@ -35,16 +35,51 @@ describe("endpointUrl", () => {
     expect(endpointUrl(ORIGIN, lb)).toBe(`${ORIGIN}/api/leaderboard`)
   })
 
+  it("never appends a query string for POST endpoints (params go in the body)", () => {
+    for (const ep of API_ENDPOINTS.filter((e) => e.method === "POST")) {
+      expect(endpointUrl(ORIGIN, ep, { address: "0x1" })).toBe(`${ORIGIN}${ep.path}`)
+    }
+  })
+
   it("tolerates an origin with a trailing slash", () => {
     const kundli = API_ENDPOINTS.find((e) => e.id === "kundli")!
     expect(endpointUrl("https://x.dev/", kundli, { address: "0x1" })).toBe("https://x.dev/api/kundli?address=0x1")
   })
 })
 
+describe("endpointBody", () => {
+  it("returns the endpoint's real example body for POST endpoints", () => {
+    const assistant = API_ENDPOINTS.find((e) => e.id === "assistant")!
+    expect(endpointBody(assistant)).toEqual(assistant.body)
+  })
+
+  it("overrides example values with provided ones, only for known params", () => {
+    const assistant = API_ENDPOINTS.find((e) => e.id === "assistant")!
+    const body = endpointBody(assistant, { message: "hi", nonsense: "x" })
+    expect(body.message).toBe("hi")
+    expect("nonsense" in body).toBe(false)
+  })
+
+  it("is empty for GET endpoints", () => {
+    const kundli = API_ENDPOINTS.find((e) => e.id === "kundli")!
+    expect(endpointBody(kundli, { address: "0x1" })).toEqual({})
+  })
+})
+
 describe("curlFor", () => {
-  it("wraps the endpoint URL in a runnable curl", () => {
+  it("wraps a GET endpoint URL in a runnable curl", () => {
     const activity = API_ENDPOINTS.find((e) => e.id === "activity")!
     expect(curlFor(ORIGIN, activity, { address: "0x1" })).toBe(`curl "${ORIGIN}/api/activity?address=0x1"`)
+  })
+
+  it("emits a POST curl with a JSON content-type and a valid body", () => {
+    const assistant = API_ENDPOINTS.find((e) => e.id === "assistant")!
+    const snippet = curlFor(ORIGIN, assistant)
+    expect(snippet).toContain(`curl -X POST "${ORIGIN}/api/assistant"`)
+    expect(snippet).toContain('content-type: application/json')
+    const match = snippet.match(/-d '(\{.*\})'/s)
+    expect(match).not.toBeNull()
+    expect(() => JSON.parse(match![1])).not.toThrow()
   })
 })
 
@@ -83,6 +118,13 @@ describe("catalog integrity", () => {
     for (const ep of API_ENDPOINTS) {
       expect(ep.path.startsWith("/api/")).toBe(true)
       for (const p of ep.params) expect(typeof p.required).toBe("boolean")
+    }
+  })
+
+  it("every POST endpoint ships a real example body", () => {
+    for (const ep of API_ENDPOINTS.filter((e) => e.method === "POST")) {
+      expect(ep.body).toBeDefined()
+      expect(Object.keys(ep.body!).length).toBeGreaterThan(0)
     }
   })
 })

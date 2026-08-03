@@ -4,6 +4,7 @@ import * as React from "react"
 import { motion } from "framer-motion"
 import { Volume2, VolumeX } from "lucide-react"
 import { useReducedMotion } from "@/hooks/useReducedMotion"
+import { SOUND_KEY, PREFS_EVENT, isSoundOn, soundValue } from "@/lib/prefs"
 
 /**
  * Sound toggle — a soft procedural ambient drone built with the Web Audio API.
@@ -17,7 +18,11 @@ export function SoundToggle() {
 
   React.useEffect(() => {
     if (typeof window === "undefined") return
-    setOn(window.localStorage.getItem("af_sound") === "1")
+    const sync = () => setOn(isSoundOn(window.localStorage.getItem(SOUND_KEY)))
+    sync()
+    // Stay in sync when the preference is changed elsewhere (e.g. Settings).
+    window.addEventListener(PREFS_EVENT, sync)
+    return () => window.removeEventListener(PREFS_EVENT, sync)
   }, [])
 
   React.useEffect(() => {
@@ -74,7 +79,9 @@ export function SoundToggle() {
   function toggle() {
     const next = !on
     setOn(next)
-    window.localStorage.setItem("af_sound", next ? "1" : "0")
+    window.localStorage.setItem(SOUND_KEY, soundValue(next))
+    // Notify other surfaces (Settings) so they reflect the change live.
+    window.dispatchEvent(new Event(PREFS_EVENT))
   }
 
   return (

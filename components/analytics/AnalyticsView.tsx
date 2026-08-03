@@ -4,16 +4,18 @@ import * as React from "react"
 import Link from "next/link"
 import { motion } from "framer-motion"
 import {
-  BarChart3, TrendingUp, ArrowDownLeft, ArrowUpRight, Wallet,
-  AlertTriangle, CheckCircle2, CalendarDays, Activity as ActivityIcon,
+  BarChart3, TrendingUp, TrendingDown, Minus, ArrowDownLeft, ArrowUpRight, Wallet,
+  AlertTriangle, CheckCircle2, CalendarDays, Activity as ActivityIcon, Users,
 } from "lucide-react"
 import { useAccount, useChainId, useSwitchChain } from "wagmi"
 import { ConnectButton } from "@rainbow-me/rainbowkit"
 import { arcTestnet } from "@/config/wagmi"
 import type { WalletKundli, ArcTx } from "@/lib/arc"
 import { scoreBreakdown, type ScoreFactor } from "@/lib/arc"
-import { flowStats, successRate, busiestDay, activeStreak } from "@/lib/analytics"
+import { flowStats, successRate, busiestDay, activeStreak, activityTrend, counterpartyStats } from "@/lib/analytics"
+import type { ActivityTrend as ActivityTrendStats } from "@/lib/analytics"
 import { levelUpPlan, type LevelUpTip } from "@/lib/levelUp"
+import { shortAddr } from "@/lib/transfer"
 import { useReducedMotion } from "@/hooks/useReducedMotion"
 import { rise, stagger, DUR, EASE } from "@/lib/motion"
 
@@ -109,6 +111,8 @@ export function AnalyticsView() {
   const rate = successRate(txs ?? [])
   const busy = busiestDay(kundli.activityByDay)
   const streak = activeStreak(kundli.activityByDay)
+  const trend = activityTrend(kundli.activityByDay)
+  const peers = counterpartyStats(txs ?? [])
   const plan = levelUpPlan({
     balanceUSDC: kundli.balanceUSDC,
     txCount: kundli.txCount,
@@ -156,6 +160,9 @@ export function AnalyticsView() {
       {/* Level up — actionable, real-math recommendations */}
       {plan.tips.length > 0 && <LevelUp plan={plan} reduced={reduced} />}
 
+      {/* Activity cadence — 14-day trend from the real activityByDay window */}
+      <ActivityCadence days={kundli.activityByDay} trend={trend} reduced={reduced} />
+
       {/* Streaks / cadence */}
       <div className="grid gap-4 sm:grid-cols-3">
         <Stat icon={ActivityIcon} label="Success rate" value={`${rate}%`} sub={`${(txs ?? []).length} recent tx`} tone={rate >= 90 ? "text-positive" : "text-foreground"} reduced={reduced} index={0} />
@@ -163,10 +170,141 @@ export function AnalyticsView() {
         <Stat icon={CheckCircle2} label="Busiest day" value={busy && busy.count > 0 ? `${busy.count} tx` : "—"} sub={busy && busy.count > 0 ? busy.date : "no activity yet"} reduced={reduced} index={2} />
       </div>
 
+      {/* Counterparties — distinct peers from the real tx sample */}
+      <Counterparties peers={peers} reduced={reduced} />
+
       <Link href="/dashboard" className="inline-block text-sm text-silver-dim underline decoration-hairline-strong underline-offset-4 transition hover:text-foreground hover:decoration-champagne">
         ← Back to dashboard
       </Link>
     </div>
+  )
+}
+
+function ActivityCadence({
+  days, trend, reduced,
+}: {
+  days: { date: string; count: number }[]
+  trend: ActivityTrendStats
+  reduced: boolean
+}) {
+  const empty = trend.total === 0
+  const DeltaIcon = trend.deltaPct == null ? Minus : trend.deltaPct > 0 ? TrendingUp : trend.deltaPct < 0 ? TrendingDown : Minus
+  const deltaTone =
+    trend.deltaPct == null || trend.deltaPct === 0 ? "text-silver-dim" : trend.deltaPct > 0 ? "text-positive" : "text-caution"
+  const deltaLabel = trend.deltaPct == null ? "new" : `${trend.deltaPct > 0 ? "+" : ""}${trend.deltaPct}%`
+
+  return (
+    <motion.section {...rise(reduced, 0.1)} className="card-primary p-6">
+      <p className="eyebrow flex items-center gap-2">
+        <ActivityIcon className="h-3 w-3 text-champagne" aria-hidden="true" /> Activity cadence
+        <span className="font-normal normal-case tracking-normal text-silver-dim">last {trend.window} days</span>
+      </p>
+
+      {empty ? (
+        <div className="flex h-32 flex-col items-center justify-center gap-2 text-center text-sm text-silver-dim">
+          <ActivityIcon className="h-6 w-6 opacity-40" aria-hidden="true" />
+          No activity in this window yet. Your daily transactions will chart here.
+        </div>
+      ) : (
+        <>
+          {/* Bars — champagne columns on the calm graphite field */}
+          <div className="mt-5 flex h-28 items-end gap-1" role="img" aria-label={`${trend.total} transactions across ${trend.window} days, ${trend.activeDays} active`}>
+            {days.map((d, i) => {
+              const h = Math.max(4, Math.round((d.count / trend.peak) * 100))
+              return (
+                <div key={d.date || i} className="group relative flex flex-1 items-end justify-center" style={{ height: "100%" }}>
+                  <motion.div
+                    className={
+                      "w-full rounded-t transition-colors " +
+                      (d.count > 0 ? "bg-champagne/35 group-hover:bg-champagne/55" : "bg-champagne/[0.05]")
+                    }
+                    initial={reduced ? false : { height: 0 }}
+                    animate={{ height: `${h}%` }}
+                    transition={reduced ? { duration: 0 } : { delay: 0.03 * i, duration: 0.5, ease: "easeOut" }}
+                    style={{ minHeight: 4 }}
+                  />
+                  <span className="pointer-events-none absolute -top-7 whitespace-nowrap rounded-md border border-hairline-strong bg-graphite/95 px-2 py-1 text-[10px] text-foreground opacity-0 transition group-hover:opacity-100">
+                    {d.count} tx · {shortDay(d.date)}
+                  </span>
+                </div>
+              )
+            })}
+          </div>
+          <div className="mt-1.5 flex justify-between text-[10px] text-silver-dim">
+            <span>{shortDay(days[0]?.date ?? "")}</span>
+            <span>{shortDay(days[days.length - 1]?.date ?? "")}</span>
+          </div>
+
+          {/* Summary row — three quiet numbers from the real window */}
+          <div className="mt-5 grid grid-cols-3 gap-3 border-t border-hairline pt-4 text-center">
+            <Metric label="Total" value={`${trend.total}`} sub="transactions" />
+            <Metric label="Active" value={`${trend.activeDays}`} sub={`of ${trend.window} days`} />
+            <Metric label="Pace" value={fmt(trend.avgPerActiveDay, 1)} sub="per active day" />
+          </div>
+          <p className="mt-3 flex items-center justify-center gap-1.5 text-xs text-silver">
+            <DeltaIcon className={"h-3.5 w-3.5 " + deltaTone} aria-hidden="true" />
+            <span className={deltaTone}>{deltaLabel}</span>
+            <span className="text-silver-dim">activity vs the prior half of the window</span>
+          </p>
+        </>
+      )}
+    </motion.section>
+  )
+}
+
+function shortDay(iso: string): string {
+  const d = new Date(iso)
+  if (!Number.isFinite(d.getTime())) return ""
+  return d.toLocaleDateString("en-US", { month: "short", day: "numeric" })
+}
+
+function Metric({ label, value, sub }: { label: string; value: string; sub: string }) {
+  return (
+    <div>
+      <div className="numeric text-lg font-semibold text-foreground">{value}</div>
+      <div className="text-[11px] text-silver-dim">{label} · {sub}</div>
+    </div>
+  )
+}
+
+function Counterparties({
+  peers, reduced,
+}: {
+  peers: ReturnType<typeof counterpartyStats>
+  reduced: boolean
+}) {
+  const hasPeers = peers.unique > 0
+  return (
+    <motion.section {...rise(reduced, 0.1)} className="card-primary p-6">
+      <p className="eyebrow flex items-center gap-2">
+        <Users className="h-3 w-3 text-champagne" aria-hidden="true" /> Counterparties
+        <span className="font-normal normal-case tracking-normal text-silver-dim">in the recent sample</span>
+      </p>
+      {hasPeers ? (
+        <>
+          <p className="mt-3 text-sm text-silver">
+            You&apos;ve interacted with <span className="font-semibold text-foreground">{peers.unique}</span> distinct
+            {peers.unique === 1 ? " address" : " addresses"} across the recent sample.
+          </p>
+          {peers.top && (
+            <div className="mt-4 flex items-center gap-3 rounded-xl border border-hairline bg-obsidian/30 px-4 py-3">
+              <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-champagne/[0.06] text-xs font-semibold text-champagne">
+                {peers.top.count}
+              </span>
+              <div className="min-w-0 flex-1">
+                <div className="font-mono text-sm text-foreground">{shortAddr(peers.top.address)}</div>
+                <div className="text-xs text-silver-dim">most frequent counterparty</div>
+              </div>
+            </div>
+          )}
+        </>
+      ) : (
+        <p className="mt-3 flex items-start gap-2 text-sm text-silver-dim">
+          <Users className="mt-0.5 h-4 w-4 shrink-0 opacity-40" aria-hidden="true" />
+          No counterparty activity in the recent sample yet.
+        </p>
+      )}
+    </motion.section>
   )
 }
 

@@ -13,8 +13,10 @@ import { arcTestnet } from "@/config/wagmi"
 import type { WalletKundli, ArcTx } from "@/lib/arc"
 import { flowStats } from "@/lib/analytics"
 import { buildInsight } from "@/lib/insight"
+import { financialDna, revealSeenThisSession, markRevealSeen } from "@/lib/reveal"
 import { shouldAutoRefresh, refreshInterval, secondsUntilNext } from "@/lib/liveRefresh"
 import { useReducedMotion } from "@/hooks/useReducedMotion"
+import { DnaReveal } from "@/components/dashboard/DnaReveal"
 import { loadContacts, contactFor, type Contact } from "@/lib/contacts"
 import { ScoreGauge } from "@/components/dashboard/ScoreGauge"
 import { ActivityTrend } from "@/components/dashboard/ActivityTrend"
@@ -60,6 +62,13 @@ export default function DashboardPage() {
   const [contacts, setContacts] = React.useState<Contact[]>([])
   // Millisecond stamp of the last successful load — drives the live countdown.
   const updatedMsRef = React.useRef<number>(0)
+
+  // Signature onboarding reveal. `revealing` is true only while the cinematic
+  // beat plays — the first time this wallet's data resolves this session, and
+  // only with motion enabled. Reduced-motion users go straight to the dashboard.
+  const reduced = useReducedMotion()
+  const [revealing, setRevealing] = React.useState(false)
+  const revealCheckedRef = React.useRef(false)
 
   // Saved contacts resolve counterparty names in the activity feed (Address Book).
   React.useEffect(() => {
@@ -136,6 +145,19 @@ export default function DashboardPage() {
     }
   }, [isConnected, onArc, error, load])
 
+  // Trigger the onboarding reveal the first time real data resolves for this
+  // wallet — once per session, motion only. Marking "seen" up front means a
+  // refresh, tab return, or the auto-poll never replays the beat.
+  React.useEffect(() => {
+    if (revealCheckedRef.current) return
+    if (reduced || !data || !address) return
+    revealCheckedRef.current = true
+    if (!revealSeenThisSession(address)) {
+      markRevealSeen(address)
+      setRevealing(true)
+    }
+  }, [data, address, reduced])
+
   if (!isConnected) return <ConnectPrompt />
   if (!onArc) return <SwitchPrompt onSwitch={() => switchChain?.({ chainId: arcTestnet.id })} />
   if (loading && !data) return <DashboardSkeleton />
@@ -144,9 +166,12 @@ export default function DashboardPage() {
 
   const flow = flowStats(txs)
   const insight = buildInsight(data, txs)
+  const dna = financialDna(data, txs)
 
   return (
-    <div className="mx-auto max-w-6xl space-y-5">
+    <>
+      {revealing && <DnaReveal dna={dna} onComplete={() => setRevealing(false)} />}
+      <div className="mx-auto max-w-6xl space-y-5">
       <RefreshBar
         updatedAt={updatedAt}
         updatedMs={updatedMsRef.current}
@@ -215,7 +240,8 @@ export default function DashboardPage() {
           ))}
         </div>
       </section>
-    </div>
+      </div>
+    </>
   )
 }
 

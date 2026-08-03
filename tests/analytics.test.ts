@@ -1,5 +1,5 @@
 import { describe, it, expect } from "vitest"
-import { flowStats, successRate, busiestDay, activeStreak, activityTrend } from "../lib/analytics"
+import { flowStats, successRate, busiestDay, activeStreak, activityTrend, counterpartyStats } from "../lib/analytics"
 import { scoreBreakdown, computeScore } from "../lib/arc"
 import type { ArcTx } from "../lib/arc"
 
@@ -79,6 +79,29 @@ describe("activityTrend", () => {
     expect(t.deltaPct).toBeNull()
     expect(activityTrend([]).total).toBe(0)
     expect(activityTrend([]).peak).toBe(1) // floored for safe bar scaling
+  })
+})
+
+describe("counterpartyStats", () => {
+  it("counts distinct counterparties and finds the most frequent, case-insensitively", () => {
+    const s = counterpartyStats([
+      tx({ direction: "in", from: "0xAAA" }),
+      tx({ direction: "in", from: "0xaaa" }), // same peer, different case
+      tx({ direction: "out", to: "0xBBB" }),
+      tx({ direction: "out", to: "0xCCC" }),
+    ])
+    expect(s.unique).toBe(3)
+    expect(s.top).toEqual({ address: "0xaaa", count: 2 })
+    expect(s.sampleSize).toBe(4)
+  })
+  it("skips self-transfers (no external counterparty) and is empty-safe", () => {
+    const s = counterpartyStats([tx({ direction: "self", from: "0xa", to: "0xa" })])
+    expect(s.unique).toBe(0)
+    expect(s.top).toBeNull()
+    const e = counterpartyStats([])
+    expect(e.unique).toBe(0)
+    expect(e.top).toBeNull()
+    expect(e.sampleSize).toBe(0)
   })
 })
 

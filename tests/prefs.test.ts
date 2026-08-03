@@ -2,6 +2,8 @@ import { describe, it, expect } from "vitest"
 import {
   isMotionPref,
   resolveReducedMotion,
+  isSoundOn,
+  soundValue,
   isAetherKey,
   summarizeData,
   aetherKeys,
@@ -30,6 +32,25 @@ describe("motion preference", () => {
   it("defers to the OS when set to system", () => {
     expect(resolveReducedMotion("system", true)).toBe(true)
     expect(resolveReducedMotion("system", false)).toBe(false)
+  })
+})
+
+describe("ambient sound preference", () => {
+  it("reads the persisted '1'/'0' flag honestly", () => {
+    expect(isSoundOn("1")).toBe(true)
+    expect(isSoundOn("0")).toBe(false)
+    expect(isSoundOn(null)).toBe(false) // off by default
+    expect(isSoundOn("true")).toBe(false) // only the real stored value counts
+  })
+
+  it("serializes the toggle back to the stored flag", () => {
+    expect(soundValue(true)).toBe("1")
+    expect(soundValue(false)).toBe("0")
+  })
+
+  it("round-trips through storage", () => {
+    expect(isSoundOn(soundValue(true))).toBe(true)
+    expect(isSoundOn(soundValue(false))).toBe(false)
   })
 })
 

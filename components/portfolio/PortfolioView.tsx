@@ -3,13 +3,13 @@
 import * as React from "react"
 import Link from "next/link"
 import { motion } from "framer-motion"
-import { Wallet, RefreshCw, AlertTriangle, Send, Coins, ExternalLink, TrendingUp, TrendingDown } from "lucide-react"
+import { Wallet, RefreshCw, AlertTriangle, Send, Coins, ExternalLink, TrendingUp, TrendingDown, Copy, Check } from "lucide-react"
 import { useAccount, useChainId, useSwitchChain } from "wagmi"
 import { ConnectButton } from "@rainbow-me/rainbowkit"
 import { arcTestnet } from "@/config/wagmi"
 import type { Portfolio, Holding } from "@/lib/arc"
-import { fmtAmount, tokenInitials, sortHoldings, assetCount, balanceDelta } from "@/lib/portfolio"
-import type { BalanceSnapshot, BalanceDelta } from "@/lib/portfolio"
+import { fmtAmount, tokenInitials, sortHoldings, assetCount, balanceDelta, portfolioSummary, fmtShare } from "@/lib/portfolio"
+import type { BalanceSnapshot, BalanceDelta, PortfolioSummary } from "@/lib/portfolio"
 import { Composition } from "@/components/portfolio/Composition"
 import { shortAddr } from "@/lib/transfer"
 import { useReducedMotion } from "@/hooks/useReducedMotion"
@@ -120,6 +120,7 @@ export function PortfolioView() {
     )
 
   const holdings = data ? sortHoldings(data.holdings) : []
+  const summary = data ? portfolioSummary(data.holdings) : null
 
   return (
     <div className="mx-auto max-w-3xl space-y-6">
@@ -128,6 +129,7 @@ export function PortfolioView() {
           <p className="eyebrow">Holdings</p>
           <h1 className="display mt-2 text-3xl leading-none text-ivory sm:text-4xl">What you hold on Arc.</h1>
           <p className="mt-3 text-sm text-silver">Your balances on Arc Testnet. Read-only.</p>
+          {address && <WalletChip address={address} />}
         </div>
         <button
           onClick={load}
@@ -163,6 +165,9 @@ export function PortfolioView() {
         </div>
       </motion.div>
 
+      {/* At-a-glance summary — every figure derived from real balances */}
+      {summary && summary.hasHoldings && <SummaryStrip summary={summary} reduced={reduced} />}
+
       {/* Composition — how holdings are distributed (by token amount) */}
       <Composition data={data} />
 
@@ -180,6 +185,14 @@ export function PortfolioView() {
             <AlertTriangle className="mt-0.5 h-4 w-4 shrink-0 text-negative" aria-hidden="true" />
             <span>{error}</span>
           </div>
+        ) : data && assetCount(data.holdings) === 0 ? (
+          <div className="card-quiet flex items-start gap-3 p-5 text-sm text-silver">
+            <Coins className="mt-0.5 h-4 w-4 shrink-0 text-silver-dim" aria-hidden="true" />
+            <span>
+              This wallet holds nothing on Arc yet. Grab some test USDC to get started — AetherFI shows only what's
+              really on-chain, never a placeholder balance.
+            </span>
+          </div>
         ) : (
           <ul className="space-y-2">
             {holdings.map((h, i) => (
@@ -192,6 +205,66 @@ export function PortfolioView() {
       <Link href="/dashboard" className="inline-block text-sm text-silver-dim underline decoration-hairline-strong underline-offset-4 transition hover:text-foreground hover:decoration-champagne">
         ← Back to dashboard
       </Link>
+    </div>
+  )
+}
+
+// Connected-wallet address chip — copy to clipboard + open on ArcScan. Shows
+// the real address only; no ENS or label is invented when none exists.
+function WalletChip({ address }: { address: string }) {
+  const [copied, setCopied] = React.useState(false)
+  const copy = React.useCallback(() => {
+    navigator.clipboard?.writeText(address).then(
+      () => {
+        setCopied(true)
+        window.setTimeout(() => setCopied(false), 1400)
+      },
+      () => {},
+    )
+  }, [address])
+
+  return (
+    <div className="mt-4 inline-flex items-center gap-1 rounded-full border border-hairline bg-champagne/[0.03] py-1 pl-3 pr-1 text-xs">
+      <span className="font-mono text-silver">{shortAddr(address)}</span>
+      <button
+        onClick={copy}
+        aria-label={copied ? "Address copied" : "Copy address"}
+        className="flex h-6 w-6 items-center justify-center rounded-full text-silver-dim transition hover:text-foreground"
+      >
+        {copied ? <Check className="h-3.5 w-3.5 text-positive" aria-hidden="true" /> : <Copy className="h-3.5 w-3.5" aria-hidden="true" />}
+      </button>
+      <a
+        href={`${EXPLORER}/address/${address}`}
+        target="_blank"
+        rel="noopener noreferrer"
+        aria-label="View wallet on ArcScan"
+        className="flex h-6 w-6 items-center justify-center rounded-full text-silver-dim transition hover:text-foreground"
+      >
+        <ExternalLink className="h-3.5 w-3.5" aria-hidden="true" />
+      </a>
+    </div>
+  )
+}
+
+// At-a-glance summary — distinct assets, token count, and the native USDC slice
+// of total holdings. Every figure is computed from real balances by
+// portfolioSummary(); the native share is by TOKEN AMOUNT (never a USD value).
+function SummaryStrip({ summary, reduced }: { summary: PortfolioSummary; reduced: boolean }) {
+  return (
+    <motion.div {...rise(reduced, 0.12)} className="grid grid-cols-3 gap-3">
+      <Stat label="Assets held" value={summary.assetCount.toLocaleString("en-US")} />
+      <Stat label="Tokens" value={summary.tokenCount.toLocaleString("en-US")} hint="excl. native" />
+      <Stat label="Native share" value={fmtShare(summary.nativeShare)} hint="of holdings" />
+    </motion.div>
+  )
+}
+
+function Stat({ label, value, hint }: { label: string; value: string; hint?: string }) {
+  return (
+    <div className="card-quiet p-4">
+      <div className="eyebrow !text-[10px]">{label}</div>
+      <div className="numeric mt-1.5 text-2xl font-semibold text-foreground">{value}</div>
+      {hint && <div className="mt-0.5 text-[11px] text-silver-dim">{hint}</div>}
     </div>
   )
 }

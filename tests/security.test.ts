@@ -4,6 +4,7 @@ import {
   securityReport,
   overallScore,
   securityGrade,
+  approvalActivity,
   type SecurityInput,
 } from "../lib/security"
 import type { ArcTx } from "../lib/arc"
@@ -45,6 +46,40 @@ const byId = (i: SecurityInput) => {
   const map = new Map(securityChecks(i, NOW).map((c) => [c.id, c]))
   return (id: string) => map.get(id)!
 }
+
+describe("approvalActivity", () => {
+  it("returns the real approval transactions from the sample", () => {
+    const approve = tx({ hash: "0x1", method: "approve", timestamp: "2026-01-01T00:00:00Z" })
+    const list = approvalActivity([
+      approve,
+      tx({ hash: "0x2", method: "transfer", timestamp: "2026-02-01T00:00:00Z" }),
+      tx({ hash: "0x3", method: "setApprovalForAll", timestamp: "2026-03-01T00:00:00Z" }),
+    ])
+    expect(list.map((t) => t.hash)).toEqual(["0x3", "0x1"])
+    // The returned records are the actual tx objects — no fabricated allowance.
+    expect(list).toContain(approve)
+  })
+
+  it("sorts newest-first when timestamps are present", () => {
+    const list = approvalActivity([
+      tx({ hash: "0xold", method: "approve", timestamp: "2026-01-01T00:00:00Z" }),
+      tx({ hash: "0xnew", method: "approve", timestamp: "2026-08-01T00:00:00Z" }),
+    ])
+    expect(list.map((t) => t.hash)).toEqual(["0xnew", "0xold"])
+  })
+
+  it("ignores non-approval methods and is empty-safe", () => {
+    expect(approvalActivity([])).toEqual([])
+    expect(approvalActivity([tx({ method: "transfer" }), tx({ method: null })])).toEqual([])
+  })
+
+  it("does not mutate the input array", () => {
+    const src = [tx({ hash: "0xa", method: "approve", timestamp: "2026-01-01T00:00:00Z" }), tx({ hash: "0xb", method: "approve", timestamp: "2026-08-01T00:00:00Z" })]
+    const snapshot = src.map((t) => t.hash)
+    approvalActivity(src)
+    expect(src.map((t) => t.hash)).toEqual(snapshot)
+  })
+})
 
 describe("approval exposure", () => {
   it("passes with no approval calls", () => {

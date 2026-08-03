@@ -4,14 +4,15 @@ import * as React from "react"
 import Link from "next/link"
 import { motion } from "framer-motion"
 import {
-  ShieldCheck, ShieldAlert, ShieldX, Info, AlertTriangle, ExternalLink,
+  ShieldCheck, ShieldAlert, ShieldX, Info, AlertTriangle, ExternalLink, KeyRound,
 } from "lucide-react"
 import { useAccount, useChainId, useSwitchChain } from "wagmi"
 import { ConnectButton } from "@rainbow-me/rainbowkit"
 import { arcTestnet } from "@/config/wagmi"
 import type { WalletKundli, ArcTx } from "@/lib/arc"
 import { ARCSCAN_URL } from "@/lib/arc"
-import { securityReport, type SecurityCheck, type CheckStatus, type SecurityInput } from "@/lib/security"
+import { securityReport, approvalActivity, type SecurityCheck, type CheckStatus, type SecurityInput } from "@/lib/security"
+import { shortAddr } from "@/lib/transfer"
 import { useReducedMotion } from "@/hooks/useReducedMotion"
 
 // Security — a deterministic, honest wallet checkup over the SAME on-chain data
@@ -127,6 +128,7 @@ export function SecurityView() {
   }
   const report = securityReport(secInput)
   const scorable = report.checks.some((c) => c.weight > 0)
+  const approvals = approvalActivity(txs ?? [])
 
   return (
     <div className="mx-auto max-w-4xl space-y-6">
@@ -146,6 +148,8 @@ export function SecurityView() {
           <CheckRow key={c.id} check={c} index={i} reduced={reduced} />
         ))}
       </div>
+
+      {approvals.length > 0 && <ApprovalList approvals={approvals} reduced={reduced} />}
 
       <RevokeHint address={kundli.address} />
 
@@ -217,6 +221,72 @@ function CheckRow({ check, index, reduced }: { check: SecurityCheck; index: numb
         </div>
         <p className="mt-1 text-xs leading-relaxed text-muted">{check.detail}</p>
       </div>
+    </motion.div>
+  )
+}
+
+function fmtDate(iso: string | null): string {
+  if (!iso) return "date unknown"
+  const d = new Date(iso)
+  if (!Number.isFinite(d.getTime())) return "date unknown"
+  return d.toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" })
+}
+
+// The real approval transactions detected in the sample, made actionable. We
+// list each detected approval call with its explorer link so the user can
+// inspect and revoke it. We NEVER show an allowance amount — it isn't readable
+// from this view — only the on-chain facts we actually have.
+function ApprovalList({ approvals, reduced }: { approvals: ArcTx[]; reduced: boolean }) {
+  return (
+    <motion.div
+      initial={reduced ? false : { opacity: 0, y: 12 }}
+      animate={{ opacity: 1, y: 0 }}
+      className="glass p-5"
+    >
+      <div className="flex items-center gap-2">
+        <KeyRound className="h-5 w-5 text-amber-400" aria-hidden="true" />
+        <h3 className="text-sm font-semibold">Detected approval activity</h3>
+        <span className="rounded-full bg-white/[0.06] px-2 py-0.5 text-[10px] font-semibold tabular-nums text-muted">
+          {approvals.length}
+        </span>
+      </div>
+      <p className="mt-1 text-xs text-muted">
+        Approval calls found in your recent transactions. Each grants a contract standing permission to move your tokens. The remaining allowance can&apos;t be read here — open any transaction to inspect and, if unneeded, revoke it.
+      </p>
+      <ul className="mt-4 space-y-2">
+        {approvals.map((t, i) => (
+          <motion.li
+            key={t.hash || i}
+            initial={reduced ? false : { opacity: 0, y: 6 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: reduced ? 0 : Math.min(i * 0.04, 0.24) }}
+            className="flex items-center gap-3 rounded-xl border border-amber-500/15 bg-amber-500/[0.03] p-3"
+          >
+            <KeyRound className="h-4 w-4 shrink-0 text-amber-400/80" aria-hidden="true" />
+            <div className="min-w-0 flex-1">
+              <div className="flex items-center gap-2">
+                <span className="truncate text-sm font-medium text-foreground">{t.method ?? "Approval"}</span>
+                {t.status === "error" && (
+                  <span className="rounded-full bg-red-500/10 px-2 py-0.5 text-[10px] font-semibold text-red-400">failed</span>
+                )}
+              </div>
+              <div className="mt-0.5 text-xs text-muted">
+                {t.to ? <>to {shortAddr(t.to)} · </> : null}{fmtDate(t.timestamp)}
+              </div>
+            </div>
+            {t.hash && (
+              <a
+                href={`${ARCSCAN_URL}/tx/${t.hash}`}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="inline-flex shrink-0 items-center gap-1.5 rounded-full border border-white/10 px-3 py-1.5 text-xs font-semibold text-foreground transition hover:border-primary/40 hover:text-primary"
+              >
+                Inspect <ExternalLink className="h-3.5 w-3.5" aria-hidden="true" />
+              </a>
+            )}
+          </motion.li>
+        ))}
+      </ul>
     </motion.div>
   )
 }

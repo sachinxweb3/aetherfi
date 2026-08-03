@@ -89,3 +89,29 @@ export function activityTrend(days: { date: string; count: number }[]): Activity
 
   return { total, peak: Math.max(peak, 1), activeDays, avgPerActiveDay, deltaPct, window }
 }
+
+// Distinct external counterparties across a tx sample, and the most-frequent
+// one. The counterparty is the OTHER side relative to the wallet: the sender on
+// an incoming tx, the recipient on an outgoing one. Self-transfers have no
+// external counterparty and are skipped. Pure + deterministic; derived only
+// from the real tx sample, never fabricated (File 06, File 16).
+export interface CounterpartyStats {
+  unique: number // distinct counterparty addresses in the sample
+  top: { address: string; count: number } | null // most-interacted counterparty
+  sampleSize: number
+}
+
+export function counterpartyStats(txs: ArcTx[]): CounterpartyStats {
+  const counts = new Map<string, number>()
+  for (const t of txs) {
+    const cp = t.direction === "in" ? t.from : t.direction === "out" ? t.to : null
+    if (!cp) continue
+    const key = cp.toLowerCase()
+    counts.set(key, (counts.get(key) ?? 0) + 1)
+  }
+  let top: { address: string; count: number } | null = null
+  for (const [address, count] of counts) {
+    if (!top || count > top.count) top = { address, count }
+  }
+  return { unique: counts.size, top, sampleSize: txs.length }
+}
