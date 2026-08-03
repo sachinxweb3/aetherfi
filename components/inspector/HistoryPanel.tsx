@@ -1,24 +1,26 @@
 "use client";
 
 import { useState } from "react";
+import type { LucideIcon } from "lucide-react";
+import { Pencil, FileText, Circle, Settings, Pin } from "lucide-react";
 import { useHistory } from "@/hooks/useHistory";
 import { useWorkflow } from "@/hooks/useWorkflow";
 
-const actionConfig: Record<string, { icon: string; title: string }> = {
+const actionConfig: Record<string, { icon: LucideIcon; title: string }> = {
   renameNode: {
-    icon: "✏️",
+    icon: Pencil,
     title: "Renamed Node",
   },
   updateDescription: {
-    icon: "📝",
+    icon: FileText,
     title: "Updated Description",
   },
   updateState: {
-    icon: "🟢",
+    icon: Circle,
     title: "Changed State",
   },
   updateSettings: {
-    icon: "⚙️",
+    icon: Settings,
     title: "Updated Settings",
   },
 };
@@ -102,9 +104,10 @@ export default function HistoryPanel() {
         <div className="space-y-5">
           {history.map((entry) => {
             const config = actionConfig[entry.type] || {
-              icon: "📌",
+              icon: Pin,
               title: entry.type,
             };
+            const Icon = config.icon;
 
             return (
               <div
@@ -112,8 +115,8 @@ export default function HistoryPanel() {
                 className="relative border-l-2 border-violet-400 pl-4"
               >
                 <div className="mb-2 flex items-center justify-between">
-                  <div className="font-medium">
-                    {config.icon} {config.title}
+                  <div className="flex items-center gap-1.5 font-medium">
+                    <Icon className="h-4 w-4 text-violet-400" aria-hidden="true" /> {config.title}
                   </div>
 
                   <div className="flex items-center gap-2">

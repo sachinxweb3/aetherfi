@@ -1,6 +1,6 @@
 import React from "react";
 import Link from "next/link";
-import { Zap } from "lucide-react";
+import { Zap, Heart } from "lucide-react";
 
 export default function Footer() {
   return (
@@ -31,7 +31,7 @@ export default function Footer() {
         {/* Author / Rights */}
         <div className="flex flex-col items-center md:items-end gap-1 text-[11px] text-slate-500">
           <p>© 2026 AetherFI. All rights reserved.</p>
-          <p>Designed & Engineered with ❤️ by <span className="text-cyan-400 font-semibold">Sachin</span></p>
+          <p className="inline-flex items-center gap-1">Designed & Engineered with <Heart className="h-3 w-3 text-rose-400 fill-rose-400" aria-label="love" /> by <span className="text-cyan-400 font-semibold">Sachin</span></p>
         </div>
 
       </div>

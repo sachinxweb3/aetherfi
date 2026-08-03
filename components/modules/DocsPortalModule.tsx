@@ -10,7 +10,7 @@ export default function DocsPortalModule() {
   const sdkCode = `import { AetherClient } from "@aetherfi/sdk";
 
 const client = new AetherClient({
-  chainId: 5042730, // Arc Testnet
+  chainId: 5042002, // Arc Testnet
   rpcUrl: "https://rpc.testnet.arc.network",
 });
 
@@ -108,9 +108,9 @@ console.log("Tx Hash:", tx.hash);`;
             <div className="p-4 rounded-xl bg-[#030509] border border-white/[0.06] space-y-2 text-slate-300">
               <div><span className="text-slate-500">Network Name:</span> Arc Testnet</div>
               <div><span className="text-slate-500">RPC Endpoint:</span> <span className="text-cyan-300">https://rpc.testnet.arc.network</span></div>
-              <div><span className="text-slate-500">Chain ID (Hex):</span> <span className="text-emerald-300">0x4cf33a</span> (5042730 Decimal)</div>
+              <div><span className="text-slate-500">Chain ID (Hex):</span> <span className="text-emerald-300">0x4cef52</span> (5042002 Decimal)</div>
               <div><span className="text-slate-500">Currency Symbol:</span> USDC (Native Gas)</div>
-              <div><span className="text-slate-500">Block Explorer:</span> https://explorer.testnet.arc.network</div>
+              <div><span className="text-slate-500">Block Explorer:</span> https://testnet.arcscan.app</div>
             </div>
           </div>
         )}

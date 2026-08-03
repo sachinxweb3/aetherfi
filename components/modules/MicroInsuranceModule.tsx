@@ -35,7 +35,9 @@ export default function MicroInsuranceModule() {
               ? "bg-emerald-500/15 text-emerald-400 border border-emerald-500/30"
               : "bg-slate-800 text-slate-400 border border-white/10"
           }`}>
-            {policyActive ? "INSURANCE COVERAGE ACTIVE ✓" : "NO ACTIVE POLICY"}
+            {policyActive ? (
+              <span className="inline-flex items-center gap-1">INSURANCE COVERAGE ACTIVE <CheckCircle2 className="h-3 w-3" aria-hidden="true" /></span>
+            ) : "NO ACTIVE POLICY"}
           </span>
         </div>
       </div>

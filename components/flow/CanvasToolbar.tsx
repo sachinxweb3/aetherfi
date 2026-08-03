@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { Loader2, Play, Save, Upload, Zap, CheckCircle2 } from "lucide-react";
 
 import { useWorkflow } from "@/hooks/useWorkflow";
 import { useUndoRedoStore } from "@/stores/undoRedoStore";
@@ -51,9 +52,13 @@ export default function CanvasToolbar() {
       <button
         onClick={runWorkflow}
         disabled={isRunning}
-        className="rounded-lg border border-emerald-500/30 bg-emerald-500/10 px-4 py-2 text-sm font-semibold text-emerald-600 transition hover:bg-emerald-500/20 disabled:cursor-not-allowed disabled:opacity-50 dark:text-emerald-400"
+        className="inline-flex items-center gap-1.5 rounded-lg border border-emerald-500/30 bg-emerald-500/10 px-4 py-2 text-sm font-semibold text-emerald-600 transition hover:bg-emerald-500/20 disabled:cursor-not-allowed disabled:opacity-50 dark:text-emerald-400"
       >
-        {isRunning ? "⚙️ Running..." : "▶️ Run Workflow"}
+        {isRunning ? (
+          <><Loader2 className="h-4 w-4 animate-spin" aria-hidden="true" /> Running...</>
+        ) : (
+          <><Play className="h-4 w-4" aria-hidden="true" /> Run Workflow</>
+        )}
       </button>
 
       <button
@@ -84,33 +89,35 @@ export default function CanvasToolbar() {
 
       <button
         onClick={handleSave}
-        className="rounded-lg border px-4 py-2 text-sm transition hover:bg-slate-100 dark:hover:bg-neutral-800"
+        className="inline-flex items-center gap-1.5 rounded-lg border px-4 py-2 text-sm transition hover:bg-slate-100 dark:hover:bg-neutral-800"
       >
-        💾 Save
+        <Save className="h-4 w-4" aria-hidden="true" /> Save
       </button>
 
       <button
         onClick={exportJson}
-        className="rounded-lg border px-4 py-2 text-sm transition hover:bg-slate-100 dark:hover:bg-neutral-800"
+        className="inline-flex items-center gap-1.5 rounded-lg border px-4 py-2 text-sm transition hover:bg-slate-100 dark:hover:bg-neutral-800"
       >
-        📤 Export
+        <Upload className="h-4 w-4" aria-hidden="true" /> Export
       </button>
 
       <div className="ml-auto flex flex-col text-right text-xs">
         <span
           className={
             isRunning
-              ? "font-semibold text-blue-600 animate-pulse"
+              ? "inline-flex items-center justify-end gap-1 font-semibold text-blue-600 animate-pulse"
               : saved
-                ? "font-medium text-green-600"
+                ? "inline-flex items-center justify-end gap-1 font-medium text-green-600"
                 : "text-neutral-500"
           }
         >
-          {isRunning
-            ? "⚡ Executing Arc Flow"
-            : saved
-              ? "✅ Workflow Saved"
-              : "Ready"}
+          {isRunning ? (
+            <><Zap className="h-3.5 w-3.5" aria-hidden="true" /> Executing Arc Flow</>
+          ) : saved ? (
+            <><CheckCircle2 className="h-3.5 w-3.5" aria-hidden="true" /> Workflow Saved</>
+          ) : (
+            "Ready"
+          )}
         </span>
 
         {lastSaved && (

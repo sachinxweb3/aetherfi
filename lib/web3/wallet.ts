@@ -1,6 +1,6 @@
 // Arc Testnet EIP-3085 Network Configuration
 export const ARC_TESTNET_CONFIG = {
-  chainId: "0x4cf33a", // 5042730 in hex
+  chainId: "0x4cef52", // 5042002 in decimal
   chainName: "Arc Testnet",
   nativeCurrency: {
     name: "USDC",
@@ -11,7 +11,7 @@ export const ARC_TESTNET_CONFIG = {
     "https://rpc.testnet.arc.network",
     "https://arc-testnet.rpc.thirdweb.com"
   ],
-  blockExplorerUrls: ["https://explorer.testnet.arc.network"],
+  blockExplorerUrls: ["https://testnet.arcscan.app"],
 };
 
 export async function connectWeb3Wallet(forcePrompt = true) {

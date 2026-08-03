@@ -3,6 +3,7 @@
 import * as React from "react"
 import Link from "next/link"
 import { motion } from "framer-motion"
+import { Trophy, Medal } from "lucide-react"
 import type { Entry } from "@/lib/leaderboard"
 
 export function Leaderboard() {
@@ -24,20 +25,29 @@ export function Leaderboard() {
     }
   }, [])
 
-  const medal = (i: number) => (i === 0 ? "🥇" : i === 1 ? "🥈" : i === 2 ? "🥉" : `#${i + 1}`)
+  const medalColor = (i: number) =>
+    i === 0 ? "text-champagne" : i === 1 ? "text-silver" : "text-champagne-deep"
+  const medal = (i: number) =>
+    i < 3 ? (
+      <Medal className={`mx-auto h-4 w-4 ${medalColor(i)}`} aria-label={`Rank ${i + 1}`} />
+    ) : (
+      `#${i + 1}`
+    )
 
   return (
-    <div className="glass p-6">
+    <div className="card-primary p-6">
       <div className="mb-4 flex items-center justify-between">
-        <div className="text-sm font-semibold">🏆 Arc Leaderboard</div>
-        <div className="text-xs text-muted">Top wallets by Aura score</div>
+        <div className="flex items-center gap-2 text-sm font-semibold">
+          <Trophy className="h-4 w-4 text-champagne" aria-hidden="true" /> Arc Leaderboard
+        </div>
+        <div className="text-xs text-silver-dim">Top wallets by Aura score</div>
       </div>
 
       {loading ? (
-        <div className="py-8 text-center text-sm text-muted">Loading rankings…</div>
+        <div role="status" className="py-8 text-center text-sm text-silver-dim">Loading rankings…</div>
       ) : entries.length === 0 ? (
-        <div className="py-8 text-center text-sm text-muted">
-          No entries yet — connect your wallet to be the first on the board!
+        <div role="status" className="py-8 text-center text-sm text-silver-dim">
+          No entries yet. Connect your wallet to be the first on the board.
         </div>
       ) : (
         <div className="space-y-2">
@@ -47,16 +57,16 @@ export function Leaderboard() {
               initial={{ opacity: 0, x: -10 }}
               animate={{ opacity: 1, x: 0 }}
               transition={{ delay: i * 0.03 }}
-              className="flex items-center gap-3 rounded-xl bg-white/[0.03] px-3 py-2"
+              className="flex items-center gap-3 rounded-xl bg-champagne/[0.03] px-3 py-2"
             >
               <div className="w-8 text-center text-sm font-bold">{medal(i)}</div>
               <Link
                 href={`/w/${e.address}`}
-                className="flex-1 font-mono text-sm hover:text-accent"
+                className="flex-1 font-mono text-sm hover:text-champagne"
               >
                 {e.address.slice(0, 6)}…{e.address.slice(-4)}
               </Link>
-              <div className="text-xs text-muted">{e.rank}</div>
+              <div className="text-xs text-silver-dim">{e.rank}</div>
               <div className="w-16 text-right font-bold">{e.score}</div>
             </motion.div>
           ))}

@@ -1,12 +1,43 @@
 @import "tailwindcss";
 
+/* ============================================================
+   AETHER — Financial Intelligence Operating System
+   Design language: obsidian, champagne, editorial restraint.
+   One accent (champagne). One cool signal (ice). Everything
+   else is light on black. Hairlines, not boxes. Type carries
+   the product. Motion is slow and expensive.
+   ============================================================ */
+
 :root {
-  --background: #05060f;
-  --foreground: #e8ecff;
-  --card: #0b0e1f;
-  --muted: #8b93b7;
-  --primary: #7c5cff;
-  --accent: #22d3ee;
+  /* Surfaces — warm obsidian, never blue-black */
+  --obsidian: #0a0a0b;
+  --graphite: #121214;
+  --slate: #1a1a1e;
+  --hairline: rgba(238, 232, 216, 0.09);
+  --hairline-strong: rgba(238, 232, 216, 0.16);
+
+  /* Ink — ivory & silver */
+  --ivory: #f2efe6;
+  --silver: #9a978d;
+  --silver-dim: #6a6860;
+
+  /* Accents — champagne is the only chroma; ice is a rare cool signal */
+  --champagne: #d8c08a;
+  --champagne-deep: #b8975a;
+  --ice: #9fc1d6;
+
+  /* Semantic tokens consumed by Tailwind theme + legacy classes */
+  --background: var(--obsidian);
+  --foreground: var(--ivory);
+  --card: var(--graphite);
+  --muted: var(--silver);
+  --primary: var(--champagne);
+  --accent: var(--ice);
+
+  /* Signals */
+  --positive: #7fb09a;
+  --caution: #d8b878;
+  --negative: #cf7f74;
 }
 
 @theme inline {
@@ -16,24 +47,178 @@
   --color-muted: var(--muted);
   --color-primary: var(--primary);
   --color-accent: var(--accent);
+  --color-champagne: var(--champagne);
+  --color-ice: var(--ice);
+  --color-obsidian: var(--obsidian);
+  --color-graphite: var(--graphite);
+  --color-silver: var(--silver);
+  --color-positive: var(--positive);
+  --color-caution: var(--caution);
+  --color-negative: var(--negative);
   --font-sans: var(--font-inter), system-ui, sans-serif;
+  --font-display: var(--font-display), Georgia, serif;
 }
 
 * {
   box-sizing: border-box;
 }
 
+/* Keyboard focus — a quiet champagne ring, WCAG 2.4.7 */
+:focus-visible {
+  outline: 1.5px solid var(--champagne);
+  outline-offset: 3px;
+  border-radius: 4px;
+}
+:focus:not(:focus-visible) {
+  outline: none;
+}
+
+html {
+  scroll-behavior: smooth;
+}
 html,
 body {
   padding: 0;
   margin: 0;
-  background: var(--background);
-  color: var(--foreground);
+  background: var(--obsidian);
+  color: var(--ivory);
   font-family: var(--font-sans);
+  font-feature-settings: "cv02", "cv03", "cv04", "ss01";
   -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  letter-spacing: -0.011em;
 }
 
-/* Aurora animated background */
+::selection {
+  background: rgba(216, 192, 138, 0.24);
+  color: var(--ivory);
+}
+
+/* ---------- Editorial display type ---------- */
+.display {
+  font-family: var(--font-display);
+  font-weight: 400;
+  letter-spacing: -0.02em;
+  line-height: 0.94;
+}
+.eyebrow {
+  font-size: 0.6875rem;
+  letter-spacing: 0.32em;
+  text-transform: uppercase;
+  color: var(--silver-dim);
+  font-weight: 500;
+}
+.numeric {
+  font-variant-numeric: tabular-nums;
+  letter-spacing: -0.02em;
+}
+
+/* Champagne wordmark / emphasis — replaces the old rainbow gradient.
+   Kept as .grad-text so every existing screen inherits it untouched. */
+.grad-text {
+  color: var(--champagne);
+}
+.champagne-sheen {
+  background: linear-gradient(100deg, var(--champagne-deep) 0%, var(--champagne) 42%, #f4e6c4 52%, var(--champagne) 62%, var(--champagne-deep) 100%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+
+/* ---------- Panels (the AETHER card language) ---------- */
+/* .glass is kept as the shared card primitive but is no longer glassy —
+   it is a calm graphite panel with a single hairline. Every legacy screen
+   inherits the new look for free. */
+.glass {
+  position: relative;
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.022), rgba(255, 255, 255, 0.006));
+  border: 1px solid var(--hairline);
+  border-radius: 16px;
+  transition: border-color 0.5s cubic-bezier(0.22, 1, 0.36, 1), background 0.5s cubic-bezier(0.22, 1, 0.36, 1);
+}
+.glass:hover {
+  border-color: var(--hairline-strong);
+}
+
+/* Card weight system */
+.card-hero {
+  border-radius: 22px;
+  border: 1px solid var(--hairline-strong);
+  background:
+    radial-gradient(120% 140% at 100% 0%, rgba(216, 192, 138, 0.06), transparent 55%),
+    linear-gradient(180deg, rgba(255, 255, 255, 0.028), rgba(255, 255, 255, 0.004));
+}
+.card-primary {
+  border-radius: 18px;
+  border: 1px solid var(--hairline);
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.02), rgba(255, 255, 255, 0.006));
+}
+.card-quiet {
+  border-radius: 14px;
+  border: 1px solid var(--hairline);
+  background: transparent;
+}
+
+.hairline {
+  border: 0;
+  border-top: 1px solid var(--hairline);
+}
+
+/* Champagne primary action — restrained, no neon glow */
+.btn-champagne {
+  background: linear-gradient(180deg, #e6d3a2, var(--champagne));
+  color: #201a0e;
+  font-weight: 600;
+  letter-spacing: -0.01em;
+  border-radius: 999px;
+  transition: transform 0.4s cubic-bezier(0.22, 1, 0.36, 1), box-shadow 0.4s ease;
+  box-shadow: 0 1px 0 rgba(255, 255, 255, 0.24) inset, 0 8px 30px rgba(216, 192, 138, 0.12);
+}
+.btn-champagne:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 1px 0 rgba(255, 255, 255, 0.3) inset, 0 12px 44px rgba(216, 192, 138, 0.22);
+}
+/* Legacy .btn-glow now maps to the champagne treatment, sans loud glow */
+.btn-glow {
+  box-shadow: 0 8px 30px rgba(216, 192, 138, 0.12);
+}
+
+/* Ghost / hairline button */
+.btn-ghost {
+  border: 1px solid var(--hairline-strong);
+  border-radius: 999px;
+  color: var(--ivory);
+  transition: border-color 0.4s ease, background 0.4s ease;
+}
+.btn-ghost:hover {
+  border-color: rgba(216, 192, 138, 0.5);
+  background: rgba(216, 192, 138, 0.05);
+}
+
+/* ---------- Signature atmosphere (quiet, not dominant) ---------- */
+
+/* Fine film grain — the tactile premium layer */
+.grain {
+  position: fixed;
+  inset: 0;
+  z-index: 1;
+  pointer-events: none;
+  opacity: 0.03;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='140' height='140'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='3'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+}
+
+/* A single, slow champagne horizon glow — atmosphere, low dominance */
+.horizon {
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  background:
+    radial-gradient(80% 50% at 50% -10%, rgba(216, 192, 138, 0.08), transparent 60%),
+    radial-gradient(60% 40% at 85% 110%, rgba(159, 193, 214, 0.05), transparent 60%);
+}
+
+/* Legacy aurora kept but tamed to a faint champagne drift */
 .aurora {
   position: fixed;
   inset: 0;
@@ -45,103 +230,58 @@ body {
 .aurora::after {
   content: "";
   position: absolute;
-  width: 60vw;
-  height: 60vw;
+  width: 55vw;
+  height: 55vw;
   border-radius: 50%;
-  filter: blur(120px);
-  opacity: 0.5;
-  animation: drift 18s ease-in-out infinite alternate;
+  filter: blur(140px);
+  opacity: 0.22;
+  animation: drift 26s ease-in-out infinite alternate;
 }
 .aurora::before {
-  background: radial-gradient(circle, #7c5cff 0%, transparent 60%);
-  top: -10%;
-  left: -5%;
+  background: radial-gradient(circle, var(--champagne) 0%, transparent 62%);
+  top: -18%;
+  left: 8%;
 }
 .aurora::after {
-  background: radial-gradient(circle, #22d3ee 0%, transparent 60%);
-  bottom: -15%;
-  right: -10%;
-  animation-delay: -6s;
+  background: radial-gradient(circle, var(--ice) 0%, transparent 62%);
+  bottom: -22%;
+  right: 4%;
+  animation-delay: -12s;
 }
-
 @keyframes drift {
-  0% {
-    transform: translate(0, 0) scale(1);
-  }
-  100% {
-    transform: translate(6vw, 4vh) scale(1.2);
-  }
+  0% { transform: translate(0, 0) scale(1); }
+  100% { transform: translate(3vw, 3vh) scale(1.12); }
 }
 
-/* Grid overlay */
+/* Hairline grid — much fainter, warm-tinted */
 .grid-overlay {
   position: fixed;
   inset: 0;
   z-index: 0;
   pointer-events: none;
-  background-image: linear-gradient(rgba(124, 92, 255, 0.05) 1px, transparent 1px),
-    linear-gradient(90deg, rgba(124, 92, 255, 0.05) 1px, transparent 1px);
-  background-size: 44px 44px;
-  mask-image: radial-gradient(ellipse at center, black 0%, transparent 75%);
+  background-image: linear-gradient(rgba(238, 232, 216, 0.02) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(238, 232, 216, 0.02) 1px, transparent 1px);
+  background-size: 64px 64px;
+  mask-image: radial-gradient(ellipse at 50% 40%, black 0%, transparent 78%);
 }
 
-.glass {
-  background: linear-gradient(160deg, rgba(255, 255, 255, 0.06), rgba(255, 255, 255, 0.02));
-  border: 1px solid rgba(255, 255, 255, 0.08);
-  backdrop-filter: blur(12px);
-  border-radius: 18px;
-}
-.glass:hover {
-  border-color: rgba(124, 92, 255, 0.4);
-}
-
-.glow-text {
-  text-shadow: 0 0 24px rgba(124, 92, 255, 0.6);
-}
-
-.btn-glow {
-  box-shadow: 0 0 24px rgba(124, 92, 255, 0.45);
-}
-
-::-webkit-scrollbar {
-  width: 8px;
-}
-::-webkit-scrollbar-thumb {
-  background: rgba(124, 92, 255, 0.4);
-  border-radius: 8px;
-}
-
-/* ---------- Award-winning layer ---------- */
-
-/* Hide native cursor when custom cursor is active (fine pointers only) */
-@media (pointer: fine) {
-  body.cursor-none,
-  body.cursor-none * {
-    cursor: none !important;
-  }
-}
-
-/* Fullscreen WebGL aura mount */
 .aura-layer {
   position: fixed;
   inset: 0;
   z-index: 0;
   pointer-events: none;
+  opacity: 0.5;
 }
 .aura-layer canvas {
   width: 100%;
   height: 100%;
 }
 
-/* Gradient wordmark */
-.grad-text {
-  background: linear-gradient(90deg, #a78bfa, #22d3ee 60%, #7c5cff);
-  -webkit-background-clip: text;
-  background-clip: text;
-  color: transparent;
+.glow-text {
+  text-shadow: none;
 }
 
-/* Holographic sheen (badges/cards) */
+/* Holographic sheen kept for badges but softened to champagne */
 .holo {
   position: relative;
   overflow: hidden;
@@ -150,26 +290,25 @@ body {
   content: "";
   position: absolute;
   inset: 0;
-  background: linear-gradient(120deg, transparent 30%, rgba(255, 255, 255, 0.18) 50%, transparent 70%);
+  background: linear-gradient(120deg, transparent 35%, rgba(216, 192, 138, 0.12) 50%, transparent 65%);
   transform: translateX(-120%);
-  transition: transform 0.7s ease;
+  transition: transform 0.9s ease;
 }
 .holo:hover::after {
   transform: translateX(120%);
 }
 
-/* 3D tilt card base */
 .tilt {
   transform-style: preserve-3d;
-  transition: transform 0.15s ease-out;
+  transition: transform 0.2s cubic-bezier(0.22, 1, 0.36, 1);
   will-change: transform;
 }
 
-/* Scroll reveal (set data-reveal, JS toggles .in) */
+/* ---------- Scroll reveal ---------- */
 .reveal {
   opacity: 0;
-  transform: translateY(28px);
-  transition: opacity 0.7s cubic-bezier(0.22, 1, 0.36, 1), transform 0.7s cubic-bezier(0.22, 1, 0.36, 1);
+  transform: translateY(24px);
+  transition: opacity 0.9s cubic-bezier(0.22, 1, 0.36, 1), transform 0.9s cubic-bezier(0.22, 1, 0.36, 1);
 }
 .reveal.in {
   opacity: 1;
@@ -182,32 +321,78 @@ body {
   letter-spacing: 0.02em;
 }
 .index-link .idx {
-  color: var(--accent);
+  color: var(--champagne);
   font-variant-numeric: tabular-nums;
-  opacity: 0.7;
+  opacity: 0.6;
   margin-right: 0.4em;
   font-size: 0.75em;
 }
 
-/* Shimmer skeleton */
+/* Shimmer skeleton — warm, low contrast */
 .shimmer {
-  background: linear-gradient(90deg, rgba(255,255,255,0.04) 25%, rgba(255,255,255,0.1) 37%, rgba(255,255,255,0.04) 63%);
+  background: linear-gradient(90deg, rgba(238, 232, 216, 0.03) 25%, rgba(238, 232, 216, 0.07) 37%, rgba(238, 232, 216, 0.03) 63%);
   background-size: 400% 100%;
-  animation: shimmer 1.4s ease infinite;
+  animation: shimmer 1.6s ease infinite;
 }
 @keyframes shimmer {
   0% { background-position: 100% 0; }
   100% { background-position: 0 0; }
 }
 
-/* Marquee for share strip */
 @keyframes floaty {
-  0%,100% { transform: translateY(0); }
-  50% { transform: translateY(-6px); }
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-5px); }
 }
-.floaty { animation: floaty 4s ease-in-out infinite; }
+.floaty { animation: floaty 5s ease-in-out infinite; }
+
+/* Slow rotating ring for the AETHER mark */
+@keyframes spin-slow {
+  to { transform: rotate(360deg); }
+}
+.spin-slow { animation: spin-slow 40s linear infinite; }
+
+/* Custom scrollbar — thin champagne */
+::-webkit-scrollbar {
+  width: 7px;
+  height: 7px;
+}
+::-webkit-scrollbar-thumb {
+  background: rgba(216, 192, 138, 0.22);
+  border-radius: 8px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: rgba(216, 192, 138, 0.4);
+}
+
+@media (pointer: fine) {
+  body.cursor-none,
+  body.cursor-none * {
+    cursor: none !important;
+  }
+}
 
 @media (prefers-reduced-motion: reduce) {
+  html { scroll-behavior: auto; }
   .reveal { opacity: 1; transform: none; }
-  .floaty { animation: none; }
+  .floaty,
+  .spin-slow,
+  .aurora::before,
+  .aurora::after,
+  .shimmer {
+    animation: none !important;
+  }
+  .holo::after,
+  .tilt,
+  .btn-champagne {
+    transition: none !important;
+  }
+}
+
+/* Legend mode retained but retuned to a deeper gold */
+.legend-theme {
+  --primary: #e8c877;
+  --accent: #f0dca0;
+}
+.legend-theme .glass {
+  border-color: rgba(232, 200, 119, 0.24);
 }

@@ -28,14 +28,15 @@ export function MagneticCursor() {
     function onMove(e: MouseEvent) {
       mx = e.clientX
       my = e.clientY
-      dot.style.transform = `translate3d(${mx - 3}px, ${my - 3}px, 0)`
       const t = e.target as HTMLElement
       hovering = !!t.closest("a, button, [data-magnetic]")
     }
     function loop() {
       raf = requestAnimationFrame(loop)
-      rx += (mx - rx) * 0.15
-      ry += (my - ry) * 0.15
+      // dot instant, ring smooth trail
+      dot.style.transform = `translate3d(${mx - 3}px, ${my - 3}px, 0)`
+      rx += (mx - rx) * 0.2
+      ry += (my - ry) * 0.2
       const s = hovering ? 2.4 : 1
       ring.style.transform = `translate3d(${rx - 18}px, ${ry - 18}px, 0) scale(${s})`
       ring.style.opacity = hovering ? "0.9" : "0.5"
@@ -56,11 +57,12 @@ export function MagneticCursor() {
       <div
         ref={ringRef}
         className="pointer-events-none fixed left-0 top-0 z-[100] h-9 w-9 rounded-full border border-accent/60 mix-blend-screen"
-        style={{ transition: "opacity 0.3s" }}
+        style={{ transition: "opacity 0.3s", willChange: "transform" }}
       />
       <div
         ref={dotRef}
         className="pointer-events-none fixed left-0 top-0 z-[100] h-1.5 w-1.5 rounded-full bg-accent shadow-[0_0_12px_2px_rgba(34,211,238,0.8)]"
+        style={{ willChange: "transform" }}
       />
     </>
   )

@@ -52,8 +52,8 @@ export default function PostQuantumModule() {
             </div>
           </div>
 
-          <span className="px-3 py-1 rounded-full text-xs font-mono font-semibold bg-emerald-500/15 text-emerald-400 border border-emerald-500/30">
-            SHOR & GROVER PROOF ✓
+          <span className="inline-flex items-center gap-1 px-3 py-1 rounded-full text-xs font-mono font-semibold bg-emerald-500/15 text-emerald-400 border border-emerald-500/30">
+            SHOR & GROVER PROOF <CheckCircle2 className="h-3 w-3" aria-hidden="true" />
           </span>
         </div>
       </div>

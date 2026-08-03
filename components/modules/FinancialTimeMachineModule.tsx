@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState } from "react";
-import { Sparkles, RefreshCw, BarChart2 } from "lucide-react";
+import { Sparkles, RefreshCw, BarChart2, TrendingUp, Scale, TrendingDown } from "lucide-react";
 
 export default function FinancialTimeMachineModule() {
   const [initialInvestment, setInitialInvestment] = useState("10000");
@@ -105,21 +105,21 @@ export default function FinancialTimeMachineModule() {
                   onClick={() => setScenarioMode("BULL")}
                   className={`py-2 rounded-lg border ${scenarioMode === "BULL" ? "bg-emerald-500/20 text-emerald-300 border-emerald-500/40 font-bold" : "bg-[#030509] text-slate-500 border-white/10"}`}
                 >
-                  Bull 🚀
+                  <span className="inline-flex items-center justify-center gap-1">Bull <TrendingUp className="h-3 w-3" aria-hidden="true" /></span>
                 </button>
                 <button
                   type="button"
                   onClick={() => setScenarioMode("NEUTRAL")}
                   className={`py-2 rounded-lg border ${scenarioMode === "NEUTRAL" ? "bg-cyan-500/20 text-cyan-300 border-cyan-500/40 font-bold" : "bg-[#030509] text-slate-500 border-white/10"}`}
                 >
-                  Base ⚖️
+                  <span className="inline-flex items-center justify-center gap-1">Base <Scale className="h-3 w-3" aria-hidden="true" /></span>
                 </button>
                 <button
                   type="button"
                   onClick={() => setScenarioMode("BEAR")}
                   className={`py-2 rounded-lg border ${scenarioMode === "BEAR" ? "bg-red-500/20 text-red-300 border-red-500/40 font-bold" : "bg-[#030509] text-slate-500 border-white/10"}`}
                 >
-                  Bear 🐻
+                  <span className="inline-flex items-center justify-center gap-1">Bear <TrendingDown className="h-3 w-3" aria-hidden="true" /></span>
                 </button>
               </div>
             </div>

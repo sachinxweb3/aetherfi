@@ -33,7 +33,7 @@ export const arcTestnet: Chain = {
 const wcProjectId = process.env.NEXT_PUBLIC_WC_PROJECT_ID || "demo"
 
 export const config = getDefaultConfig({
-  appName: "AetherFi — Arc Wallet Kundli",
+  appName: "AetherFI — Arc Wallet Kundli",
   projectId: wcProjectId,
   chains: [arcTestnet],
   transports: {

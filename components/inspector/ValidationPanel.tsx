@@ -1,5 +1,6 @@
 "use client";
 
+import { CheckCircle2, AlertTriangle, XCircle } from "lucide-react";
 import { useValidation } from "@/hooks/useValidation";
 
 const statusStyles = {
@@ -11,10 +12,12 @@ const statusStyles = {
     "border-red-500/20 bg-red-500/10 text-red-600 dark:text-red-400",
 };
 
-const statusIcons = {
-  success: "🟢",
-  warning: "🟡",
-  error: "🔴",
+const StatusIcon = ({ status }: { status: "success" | "warning" | "error" }) => {
+  if (status === "success")
+    return <CheckCircle2 className="h-4 w-4 text-green-500" aria-label="Success" />;
+  if (status === "warning")
+    return <AlertTriangle className="h-4 w-4 text-yellow-500" aria-label="Warning" />;
+  return <XCircle className="h-4 w-4 text-red-500" aria-label="Error" />;
 };
 
 export default function ValidationPanel() {
@@ -37,7 +40,7 @@ export default function ValidationPanel() {
             </span>
 
             <span>
-              {statusIcons[result.status]}
+              <StatusIcon status={result.status} />
             </span>
           </div>
 

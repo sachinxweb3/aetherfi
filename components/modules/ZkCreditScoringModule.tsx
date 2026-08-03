@@ -49,8 +49,8 @@ export default function ZkCreditScoringModule() {
             </div>
           </div>
 
-          <span className="px-3 py-1 rounded-full text-xs font-mono font-semibold bg-emerald-500/15 text-emerald-400 border border-emerald-500/30">
-            PRIVACY PRESERVING ✓
+          <span className="inline-flex items-center gap-1 px-3 py-1 rounded-full text-xs font-mono font-semibold bg-emerald-500/15 text-emerald-400 border border-emerald-500/30">
+            PRIVACY PRESERVING <CheckCircle2 className="h-3 w-3" aria-hidden="true" />
           </span>
         </div>
       </div>
@@ -125,17 +125,17 @@ export default function ZkCreditScoringModule() {
               <div className="p-2.5 border-b border-white/[0.04] grid grid-cols-3 items-center text-[11px]">
                 <span className="text-slate-300">Repayment History</span>
                 <span className="text-slate-500">Encrypted (100% On-Time)</span>
-                <span className="text-emerald-400 text-right">PASSED ✓</span>
+                <span className="text-emerald-400 text-right inline-flex items-center justify-end gap-1">PASSED <CheckCircle2 className="h-3 w-3" aria-hidden="true" /></span>
               </div>
               <div className="p-2.5 border-b border-white/[0.04] grid grid-cols-3 items-center text-[11px]">
                 <span className="text-slate-300">Debt-to-Income Ratio</span>
                 <span className="text-slate-500">Blind Range (&lt; 12%)</span>
-                <span className="text-emerald-400 text-right">PASSED ✓</span>
+                <span className="text-emerald-400 text-right inline-flex items-center justify-end gap-1">PASSED <CheckCircle2 className="h-3 w-3" aria-hidden="true" /></span>
               </div>
               <div className="p-2.5 grid grid-cols-3 items-center text-[11px]">
                 <span className="text-slate-300">Wallet Longevity</span>
                 <span className="text-slate-500">Blind Range (&gt; 3 Years)</span>
-                <span className="text-emerald-400 text-right">PASSED ✓</span>
+                <span className="text-emerald-400 text-right inline-flex items-center justify-end gap-1">PASSED <CheckCircle2 className="h-3 w-3" aria-hidden="true" /></span>
               </div>
             </div>
 

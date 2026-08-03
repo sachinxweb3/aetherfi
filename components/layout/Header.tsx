@@ -62,7 +62,7 @@ export default function Header() {
           </Link>
           <span className="hidden sm:inline-flex items-center gap-1.5 rounded-full border border-cyan-500/30 bg-cyan-500/10 px-2.5 py-0.5 text-[10px] font-mono text-cyan-300">
             <span className="h-1.5 w-1.5 rounded-full bg-cyan-400 animate-pulse" />
-            ARC TESTNET (5042730)
+            ARC TESTNET (5042002)
           </span>
         </div>
 

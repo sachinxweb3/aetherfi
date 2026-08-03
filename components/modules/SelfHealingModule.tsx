@@ -79,7 +79,11 @@ export default function SelfHealingModule() {
               ? "bg-red-500/20 text-red-400 border border-red-500/40 animate-pulse"
               : "bg-emerald-500/15 text-emerald-400 border border-emerald-500/30"
           }`}>
-            {circuitBreakerTripped ? "CIRCUIT BREAKER TRIPPED 🛑" : "SYSTEM SECURE ✓"}
+            {circuitBreakerTripped ? (
+              <span className="inline-flex items-center gap-1">CIRCUIT BREAKER TRIPPED <ShieldAlert className="h-3 w-3" aria-hidden="true" /></span>
+            ) : (
+              <span className="inline-flex items-center gap-1">SYSTEM SECURE <ShieldCheck className="h-3 w-3" aria-hidden="true" /></span>
+            )}
           </span>
         </div>
       </div>

@@ -12,6 +12,7 @@ import {
   RefreshCw,
   Zap,
   KeyRound,
+  CheckCircle2,
 } from "lucide-react";
 
 export default function ZkVaultModule() {
@@ -205,14 +206,14 @@ export default function ZkVaultModule() {
                 <span className="text-emerald-400 flex items-center gap-1"><ArrowDownLeft className="h-3 w-3" /> Shield Swap</span>
                 <span>1,200 USDC</span>
                 <span className="text-slate-500">0x9f...a81</span>
-                <span className="text-emerald-400 text-right">Verified ✓</span>
+                <span className="text-emerald-400 text-right inline-flex items-center justify-end gap-1">Verified <CheckCircle2 className="h-3 w-3" aria-hidden="true" /></span>
               </div>
 
               <div className="p-3 border-b border-white/[0.04] grid grid-cols-4 items-center text-[11px]">
                 <span className="text-cyan-400 flex items-center gap-1"><ArrowUpRight className="h-3 w-3" /> Stealth Transfer</span>
                 <span>500 USDC</span>
                 <span className="text-slate-500">0x3b...f12</span>
-                <span className="text-emerald-400 text-right">Verified ✓</span>
+                <span className="text-emerald-400 text-right inline-flex items-center justify-end gap-1">Verified <CheckCircle2 className="h-3 w-3" aria-hidden="true" /></span>
               </div>
 
               <div className="p-3 grid grid-cols-4 items-center text-[11px]">

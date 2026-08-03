@@ -3,6 +3,7 @@
 import * as React from "react"
 import { Renderer, Program, Mesh, Triangle } from "ogl"
 import { seedFromAddress } from "@/lib/aura"
+import { useReducedMotion } from "@/hooks/useReducedMotion"
 
 /**
  * AuraCanvas — the signature piece of AetherFi.
@@ -139,6 +140,7 @@ export function AuraCanvas({
   paramRef.current = params ?? {}
   const seedRef = React.useRef(seedFromAddress(address))
   seedRef.current = seedFromAddress(address)
+  const reduced = useReducedMotion()
 
   React.useEffect(() => {
     const el = ref.current
@@ -186,6 +188,29 @@ export function AuraCanvas({
     const onVis = () => (running = document.visibilityState === "visible")
     document.addEventListener("visibilitychange", onVis)
 
+    // Reduced-motion (File 05 / File 11 / WCAG 2.2): render ONE settled frame
+    // — the wallet's unique aura still shows, fully ignited, but frozen. No
+    // requestAnimationFrame loop, no listeners that would restart animation.
+    if (reduced) {
+      const p = paramRef.current
+      const cur = program.uniforms.uParams.value as number[]
+      cur[0] = p.energy ?? 0.4
+      cur[1] = p.density ?? 0.3
+      cur[2] = p.pulse ?? 0.3
+      cur[3] = p.rings ?? 0.3
+      program.uniforms.uTime.value = 0
+      program.uniforms.uSeed.value = seedRef.current
+      ;(program.uniforms.uIntro as { value: number }).value = 1
+      renderer.render({ scene: mesh })
+      return () => {
+        window.removeEventListener("resize", resize)
+        document.removeEventListener("visibilitychange", onVis)
+        const ext = gl.getExtension("WEBGL_lose_context")
+        ext?.loseContext()
+        if (gl.canvas.parentNode === el) el.removeChild(gl.canvas)
+      }
+    }
+
     function frame(now: number) {
       raf = requestAnimationFrame(frame)
       if (!running) return
@@ -217,7 +242,7 @@ export function AuraCanvas({
       ext?.loseContext()
       if (gl.canvas.parentNode === el) el.removeChild(gl.canvas)
     }
-  }, [intense])
+  }, [intense, reduced])
 
   return <div ref={ref} className={className} aria-hidden />
 }
